@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>TV Player • Global Stream Hub</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root {
@@ -28,8 +30,6 @@
       position: fixed;
     }
     
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
-    
     .video-stage {
       position: fixed;
       top: 0;
@@ -45,8 +45,6 @@
       height: 100%;
       object-fit: contain;
       background: #000;
-      position: relative;
-      z-index: 2;
     }
     
     .top-bar {
@@ -55,7 +53,7 @@
       left: 0;
       right: 0;
       z-index: 20;
-      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
       padding: 16px 24px;
       display: flex;
       justify-content: space-between;
@@ -66,25 +64,19 @@
     .top-bar > * { pointer-events: auto; }
     
     .now-playing-badge {
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.6);
       backdrop-filter: blur(12px);
       border-left: 3px solid var(--primary);
       padding: 8px 18px;
       border-radius: 0 12px 12px 0;
       font-size: 14px;
       font-weight: 500;
-      max-width: 70%;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     
     .now-playing-badge .channel-name {
       color: var(--primary);
       font-weight: 700;
       font-size: 16px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: block;
     }
     
     .now-playing-badge .meta {
@@ -94,7 +86,7 @@
     }
     
     .clock {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.5);
       backdrop-filter: blur(8px);
       padding: 6px 14px;
       border-radius: 40px;
@@ -102,7 +94,6 @@
       font-weight: 500;
       font-size: 15px;
       letter-spacing: 1px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     
     .menu-toggle {
@@ -110,7 +101,7 @@
       bottom: 24px;
       left: 24px;
       z-index: 50;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.75);
       backdrop-filter: blur(16px);
       border: 1px solid var(--primary);
       border-radius: 48px;
@@ -121,7 +112,8 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 25px rgba(0,0,0,0.5);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      pointer-events: auto;
     }
     
     .menu-toggle:hover {
@@ -129,7 +121,9 @@
       transform: scale(1.05);
     }
     
-    .menu-toggle:hover svg path { stroke: #000; }
+    .menu-toggle:hover svg path {
+      stroke: #000;
+    }
     
     .sidebar {
       position: fixed;
@@ -146,10 +140,12 @@
       transition: transform 0.35s var(--transition-smooth);
       display: flex;
       flex-direction: column;
-      box-shadow: 8px 0 40px rgba(0,0,0,0.6);
+      box-shadow: 8px 0 40px rgba(0,0,0,0.5);
     }
     
-    .sidebar.open { transform: translateX(0); }
+    .sidebar.open {
+      transform: translateX(0);
+    }
     
     .sidebar-header {
       padding: 24px 20px;
@@ -227,18 +223,33 @@
       opacity: 0.7;
     }
     
-    .channel-info { flex: 1; min-width: 0; }
+    .channel-info {
+      flex: 1;
+    }
     
     .channel-title {
       font-weight: 600;
-      font-size: 14px;
+      font-size: 15px;
       margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
     
-    .channel-group { font-size: 11px; color: var(--text-dim); }
+    .channel-group {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    
+    .geo-badge {
+      font-size: 10px;
+      background: rgba(255, 51, 102, 0.2);
+      border: 1px solid rgba(255, 51, 102, 0.5);
+      border-radius: 20px;
+      padding: 2px 8px;
+      margin-left: 8px;
+      color: #ff6680;
+    }
     
     .quick-selector {
       padding: 16px;
@@ -256,6 +267,12 @@
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
+      font-family: inherit;
+    }
+    
+    .quick-selector select:focus {
+      outline: none;
+      box-shadow: 0 0 12px var(--primary-glow);
     }
     
     .modal-overlay {
@@ -275,7 +292,10 @@
       transition: all 0.3s ease;
     }
     
-    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
     
     .vpn-modal {
       background: linear-gradient(145deg, #0f0f1a, #07070e);
@@ -285,6 +305,36 @@
       width: 90%;
       padding: 28px 24px;
       text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      animation: modalPop 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    
+    @keyframes modalPop {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    
+    .vpn-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 0 12px #ff3366);
+    }
+    
+    .vpn-modal h3 {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #ff6680, #ff3366);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .vpn-modal p {
+      color: #ccc;
+      line-height: 1.5;
+      margin: 16px 0;
+      font-size: 14px;
     }
     
     .vpn-warning-text {
@@ -305,57 +355,113 @@
       padding: 8px 12px;
       background: rgba(255,255,255,0.05);
       border-radius: 12px;
+      cursor: pointer;
     }
     
-    .modal-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn-primary { background: linear-gradient(135deg, #00f3ff, #0099cc); border: none; padding: 12px 24px; border-radius: 40px; font-weight: 700; color: #000; cursor: pointer; }
-    .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid #444; padding: 12px 24px; border-radius: 40px; color: white; cursor: pointer; }
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+    
+    .checkbox-row label {
+      color: #ddd;
+      font-size: 13px;
+      cursor: pointer;
+      flex: 1;
+      text-align: left;
+    }
+    
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #00f3ff, #0099cc);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-weight: 700;
+      color: #000;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #444;
+      padding: 12px 24px;
+      border-radius: 40px;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
     
     .notification-ticker {
       position: fixed;
-      bottom: 90px;
+      bottom: 24px;
       right: 24px;
       z-index: 25;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.6);
       backdrop-filter: blur(12px);
       border-radius: 40px;
       padding: 8px 20px;
       font-size: 12px;
       color: var(--accent);
       border-left: 2px solid var(--accent);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+      animation: fadeSlideUp 0.4s ease;
+    }
+    
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
     .keyboard-hint {
       position: fixed;
-      bottom: 95px;
+      bottom: 24px;
       right: 24px;
       font-size: 10px;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
       padding: 4px 12px;
       border-radius: 20px;
       color: #888;
       font-family: monospace;
+      pointer-events: none;
       z-index: 15;
     }
     
     @media (max-width: 768px) {
-      .sidebar { width: 100%; max-width: 100%; }
-      .now-playing-badge { max-width: 60%; font-size: 11px; }
+      .sidebar { width: 100%; max-width: 100%; transform: translateX(-100%); }
       .keyboard-hint { display: none; }
+      .now-playing-badge { max-width: 60%; font-size: 11px; padding: 6px 12px; }
+      .menu-toggle { bottom: 20px; left: 20px; width: 48px; height: 48px; }
     }
+    
+    .channel-list::-webkit-scrollbar { width: 4px; }
+    .channel-list::-webkit-scrollbar-track { background: #1a1a2a; }
+    .channel-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
   </style>
 </head>
 <body>
 
-<div class="video-stage" id="videoStage">
-  <video id="video-player" autoplay playsinline controls preload="metadata" muted></video>
+<div class="video-stage">
+  <video id="video-player" autoplay playsinline preload="metadata"></video>
 </div>
 
 <div class="top-bar">
   <div class="now-playing-badge">
-    <div><span class="channel-name" id="channel-name">Loading Playlists...</span></div>
-    <div class="meta" id="channel-meta">Synchronizing feeds...</div>
+    <div><span class="channel-name" id="channel-name">Loading...</span></div>
+    <div class="meta" id="channel-meta">Live Stream</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
 </div>
@@ -368,7 +474,7 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>📡 ARCHIVE LOGS</h2>
+    <h2>📡 CHANNEL GUIDE</h2>
     <button class="close-sidebar" id="closeSidebar">✕</button>
   </div>
   <div class="channel-list" id="channelList"></div>
@@ -380,36 +486,47 @@
 <div class="modal-overlay" id="vpnModal">
   <div class="vpn-modal">
     <div class="vpn-icon">⚠️🔒</div>
-    <h3>ZONE RESTRICTION</h3>
-    <p>This stream routing profile requires explicit location access tags.</p>
+    <h3>VPN REQUIRED</h3>
+    <p><strong>Geo-restricted content</strong> — This channel is only available within Canada.</p>
     <div class="vpn-warning-text">
-      🔒 <strong>Network Route Alert:</strong><br>
-      The targeted content file layout is blocked outside validated proxy nodes.<br><br>
-      🔐 <em>Verify your region parameters if authorization drops.</em>
+      🇨🇦 <strong>Stalin's New Canada Censorship Notice:</strong><br>
+      The propaganda machine demands compliance. This stream is <strong>not for you</strong> unless you're inside the Canadian broadcast region.<br><br>
+      🔐 <em>Enable a VPN with Canadian exit node to bypass the digital iron curtain.</em>
     </div>
-    <div class="checkbox-row">
+    <div class="checkbox-row" id="dontShowAgainRow">
       <input type="checkbox" id="dontShowAgainCheckbox">
-      <label for="dontShowAgainCheckbox">🚫 Auto-skip unplayable entries</label>
+      <label for="dontShowAgainCheckbox">🚫 Don't show this again — automatically skip blocked channels</label>
     </div>
     <div class="modal-buttons">
-      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip Entry</button>
-      <button class="btn-primary" id="modalRetryBtn">🔄 Retry Route</button>
+      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip to Next Channel</button>
+      <button class="btn-primary" id="modalRetryBtn">🔄 Retry (VPN Enabled)</button>
     </div>
   </div>
 </div>
 
 <div id="notification" class="notification-ticker" style="display: none;"></div>
-<div class="keyboard-hint">← → keys • M menu • F fullscreen • Click stage to play/unmute</div>
+<div class="keyboard-hint">← → arrows • M menu • F fullscreen</div>
 
-<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  let playlist = [
-    { title: "System Initializing Fallback", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "System Fallback", geoBlocked: false, duration: 300 }
+  // ==================== PLAYLIST ====================
+  const playlist = [
+    { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC News Explore", url: "https://cbcrclive-tor-fast-internal.akamaized.net/hls/live/2095857/prod-gem-cbc-news-explore/hls/master.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC News Network", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Toronto", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Vancouver", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042768/CBCRCLINEAR_TOR_14/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CityNews Edmonton", url: "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/Video-2Mbps.m3u8", group: "News", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News National", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News BC", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf063257170000724590c/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Calgary", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf23dcfb48300077f8348/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Toronto", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc00b3b821cf00070f82c3/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Winnipeg", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc0120880c890007191016/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" }
   ];
 
+  // DOM elements
   const video = document.getElementById('video-player');
-  const videoStage = document.getElementById('videoStage');
   const channelListEl = document.getElementById('channelList');
   const channelSelect = document.getElementById('channelSelect');
   const channelNameSpan = document.getElementById('channel-name');
@@ -428,7 +545,8 @@
   let pendingGeoChannel = null;
   let isModalActive = false;
   let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
-  let activePlayPromise = null;
+  let errorCount = 0;
+  const MAX_ERRORS = playlist.length;
   
   function showNotification(msg, isError = false) {
     notificationDiv.textContent = msg;
@@ -460,120 +578,143 @@
     return startIndex;
   }
   
-  function cleanTitle(str) {
-    if (!str) return 'Untitled Log';
-    return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
-  }
-
-  function safePauseAndExecute(executionCallback) {
-    if (activePlayPromise !== null && typeof activePlayPromise.then === 'function') {
-      activePlayPromise.then(() => {
-        video.pause();
-        executionCallback();
-      }).catch(() => {
-        video.pause();
-        executionCallback();
-      });
-    } else {
-      video.pause();
-      executionCallback();
-    }
-  }
-
-  function triggerTrackedPlayback(title) {
-    activePlayPromise = video.play();
-    
-    if (activePlayPromise !== undefined && typeof activePlayPromise.catch === 'function') {
-      activePlayPromise.then(() => {
-        showNotification(`🎬 Playing Archive: ${title}`);
-      }).catch(error => {
-        if (error.name === 'AbortError') {
-          console.log("Playback pipeline cleared safely by track adjustment.");
-        } else {
-          console.warn("Autoplay block handled gracefully via controls overlay layout.", error);
-        }
-      });
-    }
-  }
-  
+  // ==================== ENHANCED FALLBACK ENGINE ====================
   function loadStream(url, isGeoBlocked, title, targetIndex) {
-    safePauseAndExecute(() => {
-      destroyHls();
-      video.removeAttribute('src');
-      video.innerHTML = '';
-      video.onerror = null; // Clean out legacy pointer listeners
-      
-      if (autoSkipGeoBlocked && isGeoBlocked) {
-        showNotification(`🔒 Skipping ${title}`, true);
-        const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-        setTimeout(() => playMovie(nextIndex), 100);
-        return;
-      }
-      
-      if (isGeoBlocked && !autoSkipGeoBlocked) {
-        pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
-        vpnModal.classList.add('active');
-        isModalActive = true;
-        return;
-      }
-
-      // FIX: Handle direct HTML5 video track processing errors safely without cascading synchronous lockups
-      video.onerror = () => {
-        video.onerror = null;
-        console.warn(`Native pipeline route dropped for track index: ${targetIndex}`);
-        const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-        setTimeout(() => playMovie(nextIdx), 300);
-      };
-      
-      if (url.includes('.m3u8')) {
-        if (Hls.isSupported()) {
-          hlsInstance = new Hls({ enableWorker: true, debug: false });
-          hlsInstance.loadSource(url);
-          hlsInstance.attachMedia(video);
-          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-            triggerTrackedPlayback(title);
-          });
-          
-          // FIX: Schedule error state propagation onto macrotask queue to decouple processing execution bounds
-          hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
-            if (data.fatal) {
-              hlsInstance.off(Hls.Events.ERROR); // Kill trace loops immediately
-              console.warn(`HLS fatal stream error discovered on item index: ${targetIndex}`);
+    destroyHls();
+    video.pause();
+    
+    // Remove any dynamically created source elements to prevent conflicts
+    const oldSource = document.getElementById('native-source-element');
+    if (oldSource && oldSource.parentNode === video) {
+      video.removeChild(oldSource);
+    }
+    
+    video.src = ''; // Clear existing source
+    
+    // Auto-skip mode for geo-blocked content
+    if (autoSkipGeoBlocked && isGeoBlocked) {
+      showNotification(`🔒 Skipped ${title} (VPN required)`, true);
+      const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+      setTimeout(() => playMovie(nextIndex), 100);
+      return false;
+    }
+    
+    // Geo-blocked modal trigger (only if auto-skip is off)
+    if (isGeoBlocked && !autoSkipGeoBlocked) {
+      pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
+      vpnModal.classList.add('active');
+      isModalActive = true;
+      return false;
+    }
+    
+    // ==================== HLS STREAM HANDLING ====================
+    if (url.includes('.m3u8')) {
+      if (Hls.isSupported()) {
+        hlsInstance = new Hls({ enableWorker: true, debug: false });
+        hlsInstance.loadSource(url);
+        hlsInstance.attachMedia(video);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          errorCount = 0; // Reset consecutive failures on success
+          video.play().catch(e => console.log("Autoplay blocked:", e));
+          showNotification(`▶️ Now playing: ${title}`);
+        });
+        hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
+          if (data.fatal && data.response && data.response.code === 403) {
+            if (!autoSkipGeoBlocked && !isModalActive) {
+              pendingGeoChannel = { url, title, isGeoBlocked: true, index: targetIndex };
+              vpnModal.classList.add('active');
+              isModalActive = true;
+            } else if (autoSkipGeoBlocked) {
               const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-              setTimeout(() => playMovie(nextIdx), 300);
+              playMovie(nextIdx);
             }
-          });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-          video.src = url;
-          triggerTrackedPlayback(title);
-        }
-      } 
-      else {
+          } else if (data.fatal) {
+            showNotification(`⚠️ HLS Error: ${title}`, true);
+            errorCount++;
+            if (errorCount >= MAX_ERRORS) {
+              showNotification("❌ All channels are currently unavailable.", true);
+              destroyHls();
+              return;
+            }
+            const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+            setTimeout(() => playMovie(nextIdx), 2000);
+          }
+        });
+        return true;
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Safari native HLS
         video.src = url;
-        video.load();
-        triggerTrackedPlayback(title);
+        video.play().catch(e => console.log(e));
+        showNotification(`▶️ Now playing: ${title} (Safari HLS)`);
+        return true;
+      } else {
+        showNotification(`❌ HLS not supported in this browser`, true);
+        const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+        setTimeout(() => playMovie(nextIdx), 2000);
+        return false;
       }
-    });
+    } 
+    
+    // ==================== FALLBACK ENGINE: MP4, M4V, MP3, etc. ====================
+    else {
+      // Detect Apple M4V containers — Chrome/Firefox need explicit type override
+      const isAppleContainer = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
+      
+      if (isAppleContainer) {
+        // Dynamic source element creation bypasses native extension rejection rules
+        let sourceItem = document.getElementById('native-source-element');
+        if (!sourceItem) {
+          sourceItem = document.createElement('source');
+          sourceItem.id = 'native-source-element';
+          video.appendChild(sourceItem);
+        }
+        sourceItem.src = url;
+        sourceItem.type = 'video/mp4'; // Forces browser to use MP4 engine regardless of extension
+      } else {
+        // Standard non-video assets (MP3 audio logs, etc.)
+        video.src = url;
+      }
+      
+      video.load();
+      video.play()
+        .then(() => {
+          errorCount = 0;
+          showNotification(`🎬 Playing Archive: ${title}`);
+        })
+        .catch(e => {
+          console.warn(`${url} — Playback failed, auto-skipping...`, e);
+          showNotification(`⚠️ Cannot play ${title} (unsupported format)`, true);
+          errorCount++;
+          if (errorCount >= MAX_ERRORS) {
+            showNotification("❌ All files are currently unplayable.", true);
+            return;
+          }
+          const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+          playMovie(nextIdx);
+        });
+      return true;
+    }
   }
   
   function playMovie(index) {
     if (isModalActive && !autoSkipGeoBlocked) return;
     
-    if (index < 0 || !playlist || playlist.length === 0) index = 0;
+    if (index < 0) index = 0;
     if (index >= playlist.length) index = 0;
     
-    if (autoSkipGeoBlocked && playlist[index] && playlist[index].geoBlocked) {
+    if (autoSkipGeoBlocked && playlist[index].geoBlocked) {
       const nextIndex = findNextPlayableChannel((index + 1) % playlist.length, false);
-      if (nextIndex !== index) { index = nextIndex; }
+      if (nextIndex !== index) {
+        showNotification(`🔒 Skipping geo-blocked channel`, true);
+        index = nextIndex;
+      }
     }
     
     currentIndex = index;
     const item = playlist[currentIndex];
-    if (!item) return;
     
-    const cleanedTitle = cleanTitle(item.title);
-    channelNameSpan.textContent = cleanedTitle;
-    channelMetaSpan.textContent = `${item.group || 'Archive File'} • Storage Feed`;
+    channelNameSpan.textContent = item.title;
+    channelMetaSpan.textContent = `${item.group} • Live Stream`;
     
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
@@ -581,7 +722,7 @@
     });
     if (channelSelect) channelSelect.value = currentIndex;
     
-    loadStream(item.url, item.geoBlocked, cleanedTitle, currentIndex);
+    loadStream(item.url, item.geoBlocked, item.title, currentIndex);
   }
   
   function skipGeoChannel() {
@@ -590,7 +731,8 @@
     isModalActive = false;
     pendingGeoChannel = null;
     const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
-    setTimeout(() => playMovie(nextIndex), 100);
+    playMovie(nextIndex);
+    showNotification("⏭️ Skipped geo-restricted channel", true);
   }
   
   function retryGeoChannel() {
@@ -599,31 +741,42 @@
     isModalActive = false;
     const channel = pendingGeoChannel;
     pendingGeoChannel = null;
-    loadStream(channel.url, false, cleanTitle(channel.title), channel.index);
+    showNotification("🔄 Retrying with VPN...", false);
+    loadStream(channel.url, false, channel.title, channel.index);
+    currentIndex = channel.index;
+    channelNameSpan.textContent = channel.title;
+    document.querySelectorAll('.channel-item').forEach((el, i) => {
+      if (i === currentIndex) el.classList.add('active');
+      else el.classList.remove('active');
+    });
+    if (channelSelect) channelSelect.value = currentIndex;
   }
   
-  dontShowAgainCheckbox.addEventListener('change', () => {
+  function handleDontShowAgain() {
     autoSkipGeoBlocked = dontShowAgainCheckbox.checked;
     localStorage.setItem('autoSkipGeoBlocked', autoSkipGeoBlocked);
     if (autoSkipGeoBlocked && isModalActive) {
       vpnModal.classList.remove('active');
       isModalActive = false;
-      playMovie(findNextPlayableChannel((currentIndex + 1) % playlist.length, false));
+      const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
+      playMovie(nextIndex);
+      showNotification("🔒 Auto-skip enabled — blocked channels will be skipped automatically", false);
     }
-  });
+  }
+  
+  dontShowAgainCheckbox.addEventListener('change', handleDontShowAgain);
   
   function renderSidebar() {
     channelListEl.innerHTML = '';
     channelSelect.innerHTML = '';
     playlist.forEach((ch, idx) => {
-      const displayTitle = cleanTitle(ch.title);
       const div = document.createElement('div');
       div.className = `channel-item ${idx === currentIndex ? 'active' : ''}`;
       div.innerHTML = `
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
-          <div class="channel-title">${escapeHtml(displayTitle)}</div>
-          <div class="channel-group">${ch.group || 'Archive'}</div>
+          <div class="channel-title">${escapeHtml(ch.title)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
+          <div class="channel-group">${ch.group}</div>
         </div>
       `;
       div.onclick = () => { playMovie(idx); closeSidebar(); };
@@ -631,122 +784,103 @@
       
       const opt = document.createElement('option');
       opt.value = idx;
-      opt.textContent = displayTitle;
+      opt.textContent = `${ch.title} ${ch.geoBlocked ? '🔒' : '🌎'}`;
       if (idx === currentIndex) opt.selected = true;
       channelSelect.appendChild(opt);
     });
   }
   
   function escapeHtml(str) {
-    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
   }
   
   function updateClock() {
-    document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
-  
-  videoStage.addEventListener('click', (e) => {
-    if (e.target === video) return; 
-    if (video.paused) {
-      triggerTrackedPlayback(cleanTitle(playlist[currentIndex].title));
-    } else {
-      video.muted = !video.muted;
-      showNotification(video.muted ? "🔇 Sound Muted" : "🔊 Audio Channel Connected");
-    }
-  });
   
   menuToggle.addEventListener('click', openSidebar);
   closeSidebarBtn.addEventListener('click', closeSidebar);
   modalSkipBtn.addEventListener('click', skipGeoChannel);
   modalRetryBtn.addEventListener('click', retryGeoChannel);
-  channelSelect.addEventListener('change', e => {
+  channelSelect.addEventListener('change', (e) => {
     playMovie(parseInt(e.target.value));
     closeSidebar();
   });
   
-  document.addEventListener('keydown', e => {
+  document.addEventListener('keydown', (e) => {
     if (isModalActive && !autoSkipGeoBlocked) return;
-    if (e.key === 'ArrowRight') playMovie((currentIndex + 1) % playlist.length);
-    if (e.key === 'ArrowLeft') playMovie((currentIndex - 1 + playlist.length) % playlist.length);
-    if (e.key === 'm' || e.key === 'M') sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); showNotification("⏩ Next channel", false); }
+    if (e.key === 'ArrowLeft') { playMovie((currentIndex - 1 + playlist.length) % playlist.length); showNotification("⏪ Previous channel", false); }
+    if (e.key === 'm' || e.key === 'M') { sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); }
     if (e.key === 'f' || e.key === 'F') {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else document.exitFullscreen();
     }
+    if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+      closeSidebar();
+    }
   });
   
   video.addEventListener('ended', () => {
-    const nextIdx = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
-    setTimeout(() => playMovie(nextIdx), 100);
+    const nextIdx = autoSkipGeoBlocked ? findNextPlayableChannel((currentIndex + 1) % playlist.length, false) : (currentIndex + 1) % playlist.length;
+    playMovie(nextIdx);
   });
   
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
-    if (totalDur === 0) { playMovie(0); return; }
-    
+    if (totalDur === 0) { 
+      const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
+      playMovie(startIdx); 
+      return; 
+    }
     const now = new Date();
     const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let pos = secondsSinceMidnight % totalDur;
     let acc = 0;
-    
     for (let i = 0; i < playlist.length; i++) {
       const dur = playlist[i].duration || 300;
       if (acc + dur > pos) {
-        playMovie(i);
+        let startIdx = i;
+        if (autoSkipGeoBlocked && playlist[startIdx].geoBlocked) {
+          startIdx = findNextPlayableChannel(startIdx, false);
+        }
+        playMovie(startIdx);
         const seekTo = pos - acc;
-        
         if (seekTo > 0) {
           const checkReady = setInterval(() => {
-            if (video.readyState >= 2 && !isNaN(video.duration) && video.duration > 0) {
-              const safeSeekPoint = Math.min(seekTo, video.duration - 1);
-              if (safeSeekPoint > 0 && isFinite(safeSeekPoint)) {
-                video.currentTime = safeSeekPoint;
-              }
+            if (video.readyState >= 2 && video.duration) {
+              video.currentTime = Math.min(seekTo, video.duration - 1);
               clearInterval(checkReady);
             }
-          }, 250);
-          setTimeout(() => clearInterval(checkReady), 8000);
+          }, 100);
         }
         return;
       }
       acc += dur;
     }
-    playMovie(0);
+    const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
+    playMovie(startIdx);
   }
-
-  localforage.config({ name: 'AJN_Video_Archive', storeName: 'playlists' });
-  const PLAYLIST_URL = 'https://raw.githubusercontent.com/banamine/video-player-archive/main/playlists/AJNHourly_ACTIVE.json';
-
-  async function fetchAndCachePlaylist() {
-    try {
-      const response = await fetch(PLAYLIST_URL);
-      if (!response.ok) throw new Error("Network path offline");
-      const freshData = await response.json();
-      await localforage.setItem('active_playlist', freshData);
-      return freshData;
-    } catch (error) {
-      const cachedData = await localforage.getItem('active_playlist');
-      if (cachedData) {
-        showNotification("📴 Operating on Saved Local Cache", true);
-        return cachedData;
-      }
-      return null;
-    }
+  
+  dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
+  renderSidebar();
+  initLinearSync();
+  setInterval(updateClock, 1000);
+  updateClock();
+  
+  if (!Hls.isSupported() && !video.canPlayType('application/vnd.apple.mpegurl')) {
+    showNotification("HLS not supported in this browser", true);
   }
-
-  async function initPlayer() {
-    dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-    const dynamicPlaylist = await fetchAndCachePlaylist();
-    if (dynamicPlaylist && Array.isArray(dynamicPlaylist) && dynamicPlaylist.length > 0) {
-      playlist = dynamicPlaylist;
-    }
-    renderSidebar();
-    initLinearSync();
-    setInterval(updateClock, 1000);
-    updateClock();
-  }
-
-  initPlayer();
 </script>
 </body>
 </html>
