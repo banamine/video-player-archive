@@ -38,7 +38,6 @@
       height: 100%;
       background: #000;
       z-index: 1;
-      cursor: pointer;
     }
     
     #video-player {
@@ -46,6 +45,8 @@
       height: 100%;
       object-fit: contain;
       background: #000;
+      position: relative;
+      z-index: 2;
     }
     
     .top-bar {
@@ -54,7 +55,7 @@
       left: 0;
       right: 0;
       z-index: 20;
-      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
       padding: 16px 24px;
       display: flex;
       justify-content: space-between;
@@ -65,7 +66,7 @@
     .top-bar > * { pointer-events: auto; }
     
     .now-playing-badge {
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.75);
       backdrop-filter: blur(12px);
       border-left: 3px solid var(--primary);
       padding: 8px 18px;
@@ -73,6 +74,7 @@
       font-size: 14px;
       font-weight: 500;
       max-width: 70%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
     
     .now-playing-badge .channel-name {
@@ -92,7 +94,7 @@
     }
     
     .clock {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.6);
       backdrop-filter: blur(8px);
       padding: 6px 14px;
       border-radius: 40px;
@@ -100,6 +102,7 @@
       font-weight: 500;
       font-size: 15px;
       letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     
     .menu-toggle {
@@ -107,7 +110,7 @@
       bottom: 24px;
       left: 24px;
       z-index: 50;
-      background: rgba(0,0,0,0.75);
+      background: rgba(0,0,0,0.85);
       backdrop-filter: blur(16px);
       border: 1px solid var(--primary);
       border-radius: 48px;
@@ -118,8 +121,7 @@
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      pointer-events: auto;
+      box-shadow: 0 4px 25px rgba(0,0,0,0.5);
     }
     
     .menu-toggle:hover {
@@ -144,7 +146,7 @@
       transition: transform 0.35s var(--transition-smooth);
       display: flex;
       flex-direction: column;
-      box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+      box-shadow: 8px 0 40px rgba(0,0,0,0.6);
     }
     
     .sidebar.open { transform: translateX(0); }
@@ -238,16 +240,6 @@
     
     .channel-group { font-size: 11px; color: var(--text-dim); }
     
-    .geo-badge {
-      font-size: 10px;
-      background: rgba(255, 51, 102, 0.2);
-      border: 1px solid rgba(255, 51, 102, 0.5);
-      border-radius: 20px;
-      padding: 2px 8px;
-      margin-left: 8px;
-      color: #ff6680;
-    }
-    
     .quick-selector {
       padding: 16px;
       border-top: 1px solid var(--border-dim);
@@ -264,7 +256,6 @@
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      font-family: inherit;
     }
     
     .modal-overlay {
@@ -294,7 +285,6 @@
       width: 90%;
       padding: 28px 24px;
       text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
     
     .vpn-warning-text {
@@ -323,24 +313,25 @@
     
     .notification-ticker {
       position: fixed;
-      bottom: 24px;
+      bottom: 90px;
       right: 24px;
       z-index: 25;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.75);
       backdrop-filter: blur(12px);
       border-radius: 40px;
       padding: 8px 20px;
       font-size: 12px;
       color: var(--accent);
       border-left: 2px solid var(--accent);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
     
     .keyboard-hint {
       position: fixed;
-      bottom: 24px;
+      bottom: 95px;
       right: 24px;
       font-size: 10px;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.5);
       padding: 4px 12px;
       border-radius: 20px;
       color: #888;
@@ -351,19 +342,20 @@
     @media (max-width: 768px) {
       .sidebar { width: 100%; max-width: 100%; }
       .now-playing-badge { max-width: 60%; font-size: 11px; }
+      .keyboard-hint { display: none; }
     }
   </style>
 </head>
 <body>
 
 <div class="video-stage" id="videoStage">
-  <video id="video-player" autoplay playsinline preload="metadata" muted></video>
+  <video id="video-player" autoplay playsinline controls preload="metadata" muted></video>
 </div>
 
 <div class="top-bar">
   <div class="now-playing-badge">
-    <div><span class="channel-name" id="channel-name">Loading Archives...</span></div>
-    <div class="meta" id="channel-meta">Connecting...</div>
+    <div><span class="channel-name" id="channel-name">Loading Playlists...</span></div>
+    <div class="meta" id="channel-meta">Synchronizing feeds...</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
 </div>
@@ -376,7 +368,7 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>📡 ARCHIVE GUIDE</h2>
+    <h2>📡 ARCHIVE LOGS</h2>
     <button class="close-sidebar" id="closeSidebar">✕</button>
   </div>
   <div class="channel-list" id="channelList"></div>
@@ -407,13 +399,13 @@
 </div>
 
 <div id="notification" class="notification-ticker" style="display: none;"></div>
-<div class="keyboard-hint">← → keys • M menu • F fullscreen • Click stage to unmute</div>
+<div class="keyboard-hint">← → keys • M menu • F fullscreen • Click stage to play/unmute</div>
 
 <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
   let playlist = [
-    { title: "Fallback Archive Node", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "System Fallback", geoBlocked: false, duration: 300 }
+    { title: "System Initializing Fallback", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "System Fallback", geoBlocked: false, duration: 300 }
   ];
 
   const video = document.getElementById('video-player');
@@ -469,7 +461,6 @@
   
   function cleanTitle(str) {
     if (!str) return 'Untitled Log';
-    // Drops any raw scraped tags cleanly
     return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
   
@@ -477,7 +468,6 @@
     destroyHls();
     video.pause();
     
-    // Completely clear both src properties and internal content references
     video.removeAttribute('src');
     video.innerHTML = '';
     
@@ -495,15 +485,14 @@
       return false;
     }
     
-    // ==================== HLS CHANNEL HANDLING ====================
     if (url.includes('.m3u8')) {
       if (Hls.isSupported()) {
         hlsInstance = new Hls({ enableWorker: true, debug: false });
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(video);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(e => console.log("Autoplay context adjusted:", e));
-          showNotification(`▶️ Playing HLS: ${title}`);
+          video.play().catch(e => console.log("Autoplay blocked, click stage manually:", e));
+          showNotification(`▶️ HLS Stream Connected`);
         });
         hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
           if (data.fatal) {
@@ -518,20 +507,16 @@
         return true;
       }
     } 
-    
-    // ==================== DIRECT FILE ARCHIVE FIX ====================
-    // Assigning the target URL directly onto the video instance completely overrides nested source logic bugs
     else {
+      // Overriding direct source bug directly on instance element
       video.src = url;
       video.load();
       video.play()
         .then(() => {
-          showNotification(`🎬 Playing Archive File: ${title}`);
+          showNotification(`🎬 Playing Archive: ${title}`);
         })
         .catch(e => {
-          console.warn("Direct file playback failed, trying next node:", e);
-          const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-          playMovie(nextIdx);
+          console.warn("Autoplay block or missing route context. Awaiting activation gesture.", e);
         });
       return true;
     }
@@ -553,7 +538,7 @@
     
     const cleanedTitle = cleanTitle(item.title);
     channelNameSpan.textContent = cleanedTitle;
-    channelMetaSpan.textContent = `${item.group || 'Archive File'} • Broadcast Log`;
+    channelMetaSpan.textContent = `${item.group || 'Archive File'} • Storage Feed`;
     
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
@@ -603,7 +588,7 @@
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
           <div class="channel-title">${escapeHtml(displayTitle)}</div>
-          <div class="channel-group">${ch.group || 'Archive Archive'}</div>
+          <div class="channel-group">${ch.group || 'Archive'}</div>
         </div>
       `;
       div.onclick = () => { playMovie(idx); closeSidebar(); };
@@ -625,9 +610,17 @@
     document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
   
-  videoStage.addEventListener('click', () => {
-    video.muted = !video.muted;
-    showNotification(video.muted ? "🔇 Sound Muted" : "🔊 Audio Channel Connected");
+  // FIX 3: Clicking the background canvas or video stage will force activate play or unmute safely
+  videoStage.addEventListener('click', (e) => {
+    if (e.target === video) return; // Allow native interaction directly on hardware controls bar
+    if (video.paused) {
+      video.play()
+        .then(() => showNotification("▶️ Feed Activated"))
+        .catch(err => console.log(err));
+    } else {
+      video.muted = !video.muted;
+      showNotification(video.muted ? "🔇 Sound Muted" : "🔊 Audio Channel Connected");
+    }
   });
   
   menuToggle.addEventListener('click', openSidebar);
@@ -654,6 +647,7 @@
     playMovie((currentIndex + 1) % playlist.length);
   });
   
+  // FIX 2: Bulletproofed metadata calculation checks against NaN logic faults
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
     if (totalDur === 0) { playMovie(0); return; }
@@ -668,15 +662,19 @@
       if (acc + dur > pos) {
         playMovie(i);
         const seekTo = pos - acc;
-        // Verify seeking rules match safety limits of old records
+        
         if (seekTo > 0) {
           const checkReady = setInterval(() => {
-            if (video.readyState >= 2 && video.duration) {
-              video.currentTime = Math.min(seekTo, video.duration - 1);
+            // CRITICAL CHECK: ensure duration is evaluated as a clean number before setting currentTime
+            if (video.readyState >= 2 && !isNaN(video.duration) && video.duration > 0) {
+              const safeSeekPoint = Math.min(seekTo, video.duration - 1);
+              if (safeSeekPoint > 0 && isFinite(safeSeekPoint)) {
+                video.currentTime = safeSeekPoint;
+              }
               clearInterval(checkReady);
             }
-          }, 150);
-          setTimeout(() => clearInterval(checkReady), 5000); // Fail-safe fallback timeout
+          }, 250);
+          setTimeout(() => clearInterval(checkReady), 8000); // Fail-safe timeout boundary
         }
         return;
       }
