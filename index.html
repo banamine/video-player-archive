@@ -428,6 +428,9 @@
   let pendingGeoChannel = null;
   let isModalActive = false;
   let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
+
+  // INTEGRATION OPTION 1: Track the current active media thread promise
+  let activePlayPromise = null;
   
   function showNotification(msg, isError = false) {
     notificationDiv.textContent = msg;
@@ -463,63 +466,87 @@
     if (!str) return 'Untitled Log';
     return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
+
+  // INTEGRATION OPTION 1: Control Wrapper to safely sequentialize background mutations
+  function safePauseAndExecute(executionCallback) {
+    if (activePlayPromise !== null && typeof activePlayPromise.then === 'function') {
+      activePlayPromise.then(() => {
+        video.pause();
+        executionCallback();
+      }).catch(() => {
+        // Even if the previous playback request was blocked or aborted, clear state cleanly
+        video.pause();
+        executionCallback();
+      });
+    } else {
+      video.pause();
+      executionCallback();
+    }
+  }
+
+  // INTEGRATION OPTION 1: Catch and track the promise returned by .play()
+  function triggerTrackedPlayback(title) {
+    activePlayPromise = video.play();
+    
+    if (activePlayPromise !== undefined && typeof activePlayPromise.catch === 'function') {
+      activePlayPromise.then(() => {
+        showNotification(`🎬 Playing Archive: ${title}`);
+      }).catch(error => {
+        if (error.name === 'AbortError') {
+          console.log("Playback pipeline cleared safely by an intentional track change.");
+        } else {
+          console.warn("Autoplay block detected. HTML5 native controls active for bypass:", error);
+        }
+      });
+    }
+  }
   
   function loadStream(url, isGeoBlocked, title, targetIndex) {
-    destroyHls();
-    video.pause();
-    
-    video.removeAttribute('src');
-    video.innerHTML = '';
-    
-    if (autoSkipGeoBlocked && isGeoBlocked) {
-      showNotification(`🔒 Skipping ${title}`, true);
-      const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-      setTimeout(() => playMovie(nextIndex), 100);
-      return false;
-    }
-    
-    if (isGeoBlocked && !autoSkipGeoBlocked) {
-      pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
-      vpnModal.classList.add('active');
-      isModalActive = true;
-      return false;
-    }
-    
-    if (url.includes('.m3u8')) {
-      if (Hls.isSupported()) {
-        hlsInstance = new Hls({ enableWorker: true, debug: false });
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(video);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(e => console.log("Autoplay blocked, click stage manually:", e));
-          showNotification(`▶️ HLS Stream Connected`);
-        });
-        hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
-          if (data.fatal) {
-            const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-            playMovie(nextIdx);
-          }
-        });
-        return true;
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.play().catch(e => console.log(e));
-        return true;
+    // Process stream configuration change safely behind the wrapper
+    safePauseAndExecute(() => {
+      destroyHls();
+      video.removeAttribute('src');
+      video.innerHTML = '';
+      
+      if (autoSkipGeoBlocked && isGeoBlocked) {
+        showNotification(`🔒 Skipping ${title}`, true);
+        const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+        setTimeout(() => playMovie(nextIndex), 100);
+        return;
       }
-    } 
-    else {
-      // Overriding direct source bug directly on instance element
-      video.src = url;
-      video.load();
-      video.play()
-        .then(() => {
-          showNotification(`🎬 Playing Archive: ${title}`);
-        })
-        .catch(e => {
-          console.warn("Autoplay block or missing route context. Awaiting activation gesture.", e);
-        });
-      return true;
-    }
+      
+      if (isGeoBlocked && !autoSkipGeoBlocked) {
+        pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
+        vpnModal.classList.add('active');
+        isModalActive = true;
+        return;
+      }
+      
+      if (url.includes('.m3u8')) {
+        if (Hls.isSupported()) {
+          hlsInstance = new Hls({ enableWorker: true, debug: false });
+          hlsInstance.loadSource(url);
+          hlsInstance.attachMedia(video);
+          hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+            triggerTrackedPlayback(title);
+          });
+          hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
+            if (data.fatal) {
+              const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+              playMovie(nextIdx);
+            }
+          });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = url;
+          triggerTrackedPlayback(title);
+        }
+      } 
+      else {
+        video.src = url;
+        video.load();
+        triggerTrackedPlayback(title);
+      }
+    });
   }
   
   function playMovie(index) {
@@ -610,13 +637,10 @@
     document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
   
-  // FIX 3: Clicking the background canvas or video stage will force activate play or unmute safely
   videoStage.addEventListener('click', (e) => {
-    if (e.target === video) return; // Allow native interaction directly on hardware controls bar
+    if (e.target === video) return; // Ignore if user clicks native controls elements
     if (video.paused) {
-      video.play()
-        .then(() => showNotification("▶️ Feed Activated"))
-        .catch(err => console.log(err));
+      triggerTrackedPlayback(cleanTitle(playlist[currentIndex].title));
     } else {
       video.muted = !video.muted;
       showNotification(video.muted ? "🔇 Sound Muted" : "🔊 Audio Channel Connected");
@@ -647,7 +671,6 @@
     playMovie((currentIndex + 1) % playlist.length);
   });
   
-  // FIX 2: Bulletproofed metadata calculation checks against NaN logic faults
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
     if (totalDur === 0) { playMovie(0); return; }
@@ -665,7 +688,7 @@
         
         if (seekTo > 0) {
           const checkReady = setInterval(() => {
-            // CRITICAL CHECK: ensure duration is evaluated as a clean number before setting currentTime
+            // Guard: completely protect against operations while duration parses as NaN
             if (video.readyState >= 2 && !isNaN(video.duration) && video.duration > 0) {
               const safeSeekPoint = Math.min(seekTo, video.duration - 1);
               if (safeSeekPoint > 0 && isFinite(safeSeekPoint)) {
@@ -674,7 +697,7 @@
               clearInterval(checkReady);
             }
           }, 250);
-          setTimeout(() => clearInterval(checkReady), 8000); // Fail-safe timeout boundary
+          setTimeout(() => clearInterval(checkReady), 8000);
         }
         return;
       }
