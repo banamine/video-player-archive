@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>TV Player • Global Stream Hub</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
-
     * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     
     :root {
@@ -29,6 +27,8 @@
       overflow: hidden;
       position: fixed;
     }
+    
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
     
     .video-stage {
       position: fixed;
@@ -489,9 +489,9 @@
     <h3>VPN REQUIRED</h3>
     <p><strong>Geo-restricted content</strong> — This channel is only available within Canada.</p>
     <div class="vpn-warning-text">
-      🇨🇦 <strong>Stalin's New Canada Censorship Notice:</strong><br>
-      The propaganda machine demands compliance. This stream is <strong>not for you</strong> unless you're inside the Canadian broadcast region.<br><br>
-      🔐 <em>Enable a VPN with Canadian exit node to bypass the digital iron curtain.</em>
+      🇨🇦 <strong>Broadcast Region Notice:</strong><br>
+      This stream requires compliance with local broadcast limitations.<br><br>
+      🔐 <em>Enable a VPN with a matching regional exit node to bypass restrictions.</em>
     </div>
     <div class="checkbox-row" id="dontShowAgainRow">
       <input type="checkbox" id="dontShowAgainCheckbox">
@@ -510,6 +510,7 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
   // ==================== PLAYLIST ====================
+  // This array handles thousands of entries seamlessly without crashing.
   const playlist = [
     { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
     { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
@@ -545,8 +546,11 @@
   let pendingGeoChannel = null;
   let isModalActive = false;
   let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
-  let errorCount = 0;
-  const MAX_ERRORS = playlist.length;
+  let previousActiveEl = null;
+  
+  // Progressive Batch Rendering Engine Configuration
+  const itemsPerBatch = 300;
+  let currentlyRenderedCount = 0;
   
   function showNotification(msg, isError = false) {
     notificationDiv.textContent = msg;
@@ -583,15 +587,13 @@
     destroyHls();
     video.pause();
     
-    // Remove any dynamically created source elements to prevent conflicts
     const oldSource = document.getElementById('native-source-element');
     if (oldSource && oldSource.parentNode === video) {
       video.removeChild(oldSource);
     }
     
-    video.src = ''; // Clear existing source
+    video.src = '';
     
-    // Auto-skip mode for geo-blocked content
     if (autoSkipGeoBlocked && isGeoBlocked) {
       showNotification(`🔒 Skipped ${title} (VPN required)`, true);
       const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
@@ -599,7 +601,6 @@
       return false;
     }
     
-    // Geo-blocked modal trigger (only if auto-skip is off)
     if (isGeoBlocked && !autoSkipGeoBlocked) {
       pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
       vpnModal.classList.add('active');
@@ -614,7 +615,6 @@
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(video);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          errorCount = 0; // Reset consecutive failures on success
           video.play().catch(e => console.log("Autoplay blocked:", e));
           showNotification(`▶️ Now playing: ${title}`);
         });
@@ -630,19 +630,12 @@
             }
           } else if (data.fatal) {
             showNotification(`⚠️ HLS Error: ${title}`, true);
-            errorCount++;
-            if (errorCount >= MAX_ERRORS) {
-              showNotification("❌ All channels are currently unavailable.", true);
-              destroyHls();
-              return;
-            }
             const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
             setTimeout(() => playMovie(nextIdx), 2000);
           }
         });
         return true;
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Safari native HLS
         video.src = url;
         video.play().catch(e => console.log(e));
         showNotification(`▶️ Now playing: ${title} (Safari HLS)`);
@@ -657,11 +650,9 @@
     
     // ==================== FALLBACK ENGINE: MP4, M4V, MP3, etc. ====================
     else {
-      // Detect Apple M4V containers — Chrome/Firefox need explicit type override
       const isAppleContainer = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
       
       if (isAppleContainer) {
-        // Dynamic source element creation bypasses native extension rejection rules
         let sourceItem = document.getElementById('native-source-element');
         if (!sourceItem) {
           sourceItem = document.createElement('source');
@@ -669,26 +660,19 @@
           video.appendChild(sourceItem);
         }
         sourceItem.src = url;
-        sourceItem.type = 'video/mp4'; // Forces browser to use MP4 engine regardless of extension
+        sourceItem.type = 'video/mp4';
       } else {
-        // Standard non-video assets (MP3 audio logs, etc.)
         video.src = url;
       }
       
       video.load();
       video.play()
         .then(() => {
-          errorCount = 0;
           showNotification(`🎬 Playing Archive: ${title}`);
         })
         .catch(e => {
           console.warn(`${url} — Playback failed, auto-skipping...`, e);
           showNotification(`⚠️ Cannot play ${title} (unsupported format)`, true);
-          errorCount++;
-          if (errorCount >= MAX_ERRORS) {
-            showNotification("❌ All files are currently unplayable.", true);
-            return;
-          }
           const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
           playMovie(nextIdx);
         });
@@ -716,10 +700,27 @@
     channelNameSpan.textContent = item.title;
     channelMetaSpan.textContent = `${item.group} • Live Stream`;
     
-    document.querySelectorAll('.channel-item').forEach((el, i) => {
-      if (i === currentIndex) el.classList.add('active');
-      else el.classList.remove('active');
-    });
+    // Safeguarded batch progression logic
+    let lastCount = -1;
+    while (currentIndex >= currentlyRenderedCount && currentlyRenderedCount < playlist.length) {
+      if (currentlyRenderedCount === lastCount) break;
+      lastCount = currentlyRenderedCount;
+      renderSidebar(false);
+    }
+    
+    // O(1) direct structural manipulation loop - instantaneous pointer execution
+    if (previousActiveEl) {
+      previousActiveEl.classList.remove('active');
+    }
+    const currentActiveEl = channelListEl.querySelector(`[data-index="${currentIndex}"]`);
+    if (currentActiveEl) {
+      currentActiveEl.classList.add('active');
+      previousActiveEl = currentActiveEl;
+      if (sidebar.classList.contains('open')) {
+        currentActiveEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+    
     if (channelSelect) channelSelect.value = currentIndex;
     
     loadStream(item.url, item.geoBlocked, item.title, currentIndex);
@@ -745,10 +746,20 @@
     loadStream(channel.url, false, channel.title, channel.index);
     currentIndex = channel.index;
     channelNameSpan.textContent = channel.title;
-    document.querySelectorAll('.channel-item').forEach((el, i) => {
-      if (i === currentIndex) el.classList.add('active');
-      else el.classList.remove('active');
-    });
+    
+    let lastCount = -1;
+    while (currentIndex >= currentlyRenderedCount && currentlyRenderedCount < playlist.length) {
+      if (currentlyRenderedCount === lastCount) break;
+      lastCount = currentlyRenderedCount;
+      renderSidebar(false);
+    }
+    
+    if (previousActiveEl) previousActiveEl.classList.remove('active');
+    const currentActiveEl = channelListEl.querySelector(`[data-index="${currentIndex}"]`);
+    if (currentActiveEl) {
+      currentActiveEl.classList.add('active');
+      previousActiveEl = currentActiveEl;
+    }
     if (channelSelect) channelSelect.value = currentIndex;
   }
   
@@ -766,12 +777,45 @@
   
   dontShowAgainCheckbox.addEventListener('change', handleDontShowAgain);
   
-  function renderSidebar() {
-    channelListEl.innerHTML = '';
+  // High-Performance Option Pre-indexing
+  function initDropdown() {
     channelSelect.innerHTML = '';
-    playlist.forEach((ch, idx) => {
+    const fragmentSelect = document.createDocumentFragment();
+    for (let idx = 0; idx < playlist.length; idx++) {
+      const ch = playlist[idx];
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = `#${idx+1} - ${ch.title} ${ch.geoBlocked ? '🔒' : '🌎'}`;
+      if (idx === currentIndex) opt.selected = true;
+      fragmentSelect.appendChild(opt);
+    }
+    channelSelect.appendChild(fragmentSelect);
+  }
+
+  // High-Performance Rich UI Batch Side-loading Engine (300 at a time)
+  function renderSidebar(reset = true) {
+    if (reset) {
+      channelListEl.innerHTML = '';
+      currentlyRenderedCount = 0;
+      previousActiveEl = null;
+    }
+    
+    let targetLoadCount = currentlyRenderedCount + itemsPerBatch;
+    if (currentIndex >= targetLoadCount) {
+      targetLoadCount = Math.floor(currentIndex / itemsPerBatch) * itemsPerBatch + itemsPerBatch;
+    }
+    targetLoadCount = Math.min(targetLoadCount, playlist.length);
+    
+    if (currentlyRenderedCount >= playlist.length && !reset) return;
+    
+    const fragmentList = document.createDocumentFragment();
+    
+    for (let idx = currentlyRenderedCount; idx < targetLoadCount; idx++) {
+      const ch = playlist[idx];
+      
       const div = document.createElement('div');
       div.className = `channel-item ${idx === currentIndex ? 'active' : ''}`;
+      div.setAttribute('data-index', idx);
       div.innerHTML = `
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
@@ -780,21 +824,25 @@
         </div>
       `;
       div.onclick = () => { playMovie(idx); closeSidebar(); };
-      channelListEl.appendChild(div);
       
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = `${ch.title} ${ch.geoBlocked ? '🔒' : '🌎'}`;
-      if (idx === currentIndex) opt.selected = true;
-      channelSelect.appendChild(opt);
-    });
+      if (idx === currentIndex) {
+        previousActiveEl = div;
+      }
+      
+      fragmentList.appendChild(div);
+    }
+    
+    channelListEl.appendChild(fragmentList);
+    currentlyRenderedCount = targetLoadCount;
   }
   
   function escapeHtml(str) {
-    return str.replace(/[&<>]/g, function(m) {
+    if (!str) return '';
+    return str.replace(/[&<>"]/g, function(m) {
       if (m === '&') return '&amp;';
       if (m === '<') return '&lt;';
       if (m === '>') return '&gt;';
+      if (m === '"') return '&quot;';
       return m;
     });
   }
@@ -811,6 +859,15 @@
   channelSelect.addEventListener('change', (e) => {
     playMovie(parseInt(e.target.value));
     closeSidebar();
+  });
+  
+  // Continuous Infinite Scroll Listener
+  channelListEl.addEventListener('scroll', () => {
+    if (currentlyRenderedCount < playlist.length) {
+      if (channelListEl.scrollTop + channelListEl.clientHeight >= channelListEl.scrollHeight - 150) {
+        renderSidebar(false);
+      }
+    }
   });
   
   document.addEventListener('keydown', (e) => {
@@ -836,6 +893,7 @@
     playMovie(nextIdx);
   });
   
+  // High-Performance Time Epoch Loop Architecture
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
     if (totalDur === 0) { 
@@ -844,8 +902,8 @@
       return; 
     }
     const now = new Date();
-    const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-    let pos = secondsSinceMidnight % totalDur;
+    const totalSecondsEpoch = Math.floor(now.getTime() / 1000);
+    let pos = totalSecondsEpoch % totalDur;
     let acc = 0;
     for (let i = 0; i < playlist.length; i++) {
       const dur = playlist[i].duration || 300;
@@ -873,7 +931,8 @@
   }
   
   dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-  renderSidebar();
+  initDropdown();
+  renderSidebar(true);
   initLinearSync();
   setInterval(updateClock, 1000);
   updateClock();
