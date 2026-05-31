@@ -72,12 +72,17 @@
       border-radius: 0 12px 12px 0;
       font-size: 14px;
       font-weight: 500;
+      max-width: 70%;
     }
     
     .now-playing-badge .channel-name {
       color: var(--primary);
       font-weight: 700;
       font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
     }
     
     .now-playing-badge .meta {
@@ -220,11 +225,11 @@
       opacity: 0.7;
     }
     
-    .channel-info { flex: 1; }
+    .channel-info { flex: 1; min-width: 0; }
     
     .channel-title {
       font-weight: 600;
-      font-size: 15px;
+      font-size: 14px;
       margin-bottom: 4px;
       white-space: nowrap;
       overflow: hidden;
@@ -262,11 +267,6 @@
       font-family: inherit;
     }
     
-    .quick-selector select:focus {
-      outline: none;
-      box-shadow: 0 0 12px var(--primary-glow);
-    }
-    
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -295,31 +295,7 @@
       padding: 28px 24px;
       text-align: center;
       box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      animation: modalPop 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
     }
-    
-    @keyframes modalPop {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    
-    .vpn-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-      filter: drop-shadow(0 0 12px #ff3366);
-    }
-    
-    .vpn-modal h3 {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, #ff6680, #ff3366);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .vpn-modal p { color: #ccc; line-height: 1.5; margin: 16px 0; font-size: 14px; }
     
     .vpn-warning-text {
       background: rgba(255,51,102,0.15);
@@ -339,37 +315,11 @@
       padding: 8px 12px;
       background: rgba(255,255,255,0.05);
       border-radius: 12px;
-      cursor: pointer;
     }
-    
-    .checkbox-row input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
-    
-    .checkbox-row label { color: #ddd; font-size: 13px; cursor: pointer; flex: 1; text-align: left; }
     
     .modal-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #00f3ff, #0099cc);
-      border: none;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 700;
-      color: #000;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .btn-secondary {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid #444;
-      padding: 12px 24px;
-      border-radius: 40px;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+    .btn-primary { background: linear-gradient(135deg, #00f3ff, #0099cc); border: none; padding: 12px 24px; border-radius: 40px; font-weight: 700; color: #000; cursor: pointer; }
+    .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid #444; padding: 12px 24px; border-radius: 40px; color: white; cursor: pointer; }
     
     .notification-ticker {
       position: fixed;
@@ -383,13 +333,6 @@
       font-size: 12px;
       color: var(--accent);
       border-left: 2px solid var(--accent);
-      pointer-events: none;
-      animation: fadeSlideUp 0.4s ease;
-    }
-    
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
     }
     
     .keyboard-hint {
@@ -402,20 +345,13 @@
       border-radius: 20px;
       color: #888;
       font-family: monospace;
-      pointer-events: none;
       z-index: 15;
     }
     
     @media (max-width: 768px) {
-      .sidebar { width: 100%; max-width: 100%; transform: translateX(-100%); }
-      .keyboard-hint { display: none; }
-      .now-playing-badge { max-width: 60%; font-size: 11px; padding: 6px 12px; }
-      .menu-toggle { bottom: 20px; left: 20px; width: 48px; height: 48px; }
+      .sidebar { width: 100%; max-width: 100%; }
+      .now-playing-badge { max-width: 60%; font-size: 11px; }
     }
-    
-    .channel-list::-webkit-scrollbar { width: 4px; }
-    .channel-list::-webkit-scrollbar-track { background: #1a1a2a; }
-    .channel-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -426,7 +362,7 @@
 
 <div class="top-bar">
   <div class="now-playing-badge">
-    <div><span class="channel-name" id="channel-name">Loading Live Archives...</span></div>
+    <div><span class="channel-name" id="channel-name">Loading Archives...</span></div>
     <div class="meta" id="channel-meta">Connecting...</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
@@ -452,37 +388,34 @@
 <div class="modal-overlay" id="vpnModal">
   <div class="vpn-modal">
     <div class="vpn-icon">⚠️🔒</div>
-    <h3>VPN REQUIRED</h3>
-    <p><strong>Geo-restricted content</strong> — This channel requires an appropriate viewing zone.</p>
+    <h3>ZONE RESTRICTION</h3>
+    <p>This stream routing profile requires explicit location access tags.</p>
     <div class="vpn-warning-text">
-      🇨🇦 <strong>Broadcast Region Notification:</strong><br>
-      This feed content is locked by upstream distribution nodes unless mapped within target viewing lines.<br><br>
-      🔐 <em>Enable a VPN with matching regional route parameters to release network limits.</em>
+      🔒 <strong>Network Route Alert:</strong><br>
+      The targeted content file layout is blocked outside validated proxy nodes.<br><br>
+      🔐 <em>Verify your region parameters if authorization drops.</em>
     </div>
-    <div class="checkbox-row" id="dontShowAgainRow">
+    <div class="checkbox-row">
       <input type="checkbox" id="dontShowAgainCheckbox">
-      <label for="dontShowAgainCheckbox">🚫 Don't show this again — automatically skip blocked channels</label>
+      <label for="dontShowAgainCheckbox">🚫 Auto-skip unplayable entries</label>
     </div>
     <div class="modal-buttons">
-      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip to Next Entry</button>
-      <button class="btn-primary" id="modalRetryBtn">🔄 Retry Stream Node</button>
+      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip Entry</button>
+      <button class="btn-primary" id="modalRetryBtn">🔄 Retry Route</button>
     </div>
   </div>
 </div>
 
 <div id="notification" class="notification-ticker" style="display: none;"></div>
-<div class="keyboard-hint">← → arrows • M menu • F fullscreen • Click video stage to unmute</div>
+<div class="keyboard-hint">← → keys • M menu • F fullscreen • Click stage to unmute</div>
 
 <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // FIX 1: Transformed from "const" to "let" so the async fetch handler can swap it out with archives.
   let playlist = [
-    { title: "CBC Toronto Fallback", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "Live Fallback", geoBlocked: true, duration: 300 },
-    { title: "Global News Fallback", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Live Fallback", geoBlocked: false, duration: 300 }
+    { title: "Fallback Archive Node", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "System Fallback", geoBlocked: false, duration: 300 }
   ];
 
-  // DOM elements
   const video = document.getElementById('video-player');
   const videoStage = document.getElementById('videoStage');
   const channelListEl = document.getElementById('channelList');
@@ -534,9 +467,9 @@
     return startIndex;
   }
   
-  // Clean titles filter to catch any residual text issues automatically
   function cleanTitle(str) {
-    if (!str) return 'Untitled Broadcast';
+    if (!str) return 'Untitled Log';
+    // Drops any raw scraped tags cleanly
     return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
   
@@ -544,16 +477,12 @@
     destroyHls();
     video.pause();
     
-    const oldSource = document.getElementById('native-source-element');
-    if (oldSource && oldSource.parentNode === video) {
-      video.removeChild(oldSource);
-    }
-    
-    // Completely scrub top-level src to enable internal dynamic sources
+    // Completely clear both src properties and internal content references
     video.removeAttribute('src');
+    video.innerHTML = '';
     
     if (autoSkipGeoBlocked && isGeoBlocked) {
-      showNotification(`🔒 Skipped ${title} (VPN Required)`, true);
+      showNotification(`🔒 Skipping ${title}`, true);
       const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
       setTimeout(() => playMovie(nextIndex), 100);
       return false;
@@ -566,29 +495,20 @@
       return false;
     }
     
-    // ==================== HLS LIVE MANIFEST PIPELINE ====================
+    // ==================== HLS CHANNEL HANDLING ====================
     if (url.includes('.m3u8')) {
       if (Hls.isSupported()) {
         hlsInstance = new Hls({ enableWorker: true, debug: false });
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(video);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(e => console.log("Autoplay caught:", e));
-          showNotification(`▶️ Playing: ${title}`);
+          video.play().catch(e => console.log("Autoplay context adjusted:", e));
+          showNotification(`▶️ Playing HLS: ${title}`);
         });
         hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
-          if (data.fatal && data.response && data.response.code === 403) {
-            if (!autoSkipGeoBlocked && !isModalActive) {
-              pendingGeoChannel = { url, title, isGeoBlocked: true, index: targetIndex };
-              vpnModal.classList.add('active');
-              isModalActive = true;
-            } else if (autoSkipGeoBlocked) {
-              const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-              playMovie(nextIdx);
-            }
-          } else if (data.fatal) {
+          if (data.fatal) {
             const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-            setTimeout(() => playMovie(nextIdx), 2000);
+            playMovie(nextIdx);
           }
         });
         return true;
@@ -599,30 +519,17 @@
       }
     } 
     
-    // ==================== ARCHIVE CONTROLLER: M4V, MP4, MP3 ====================
+    // ==================== DIRECT FILE ARCHIVE FIX ====================
+    // Assigning the target URL directly onto the video instance completely overrides nested source logic bugs
     else {
-      const isVideoFile = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
-      
-      if (isVideoFile) {
-        let sourceItem = document.getElementById('native-source-element');
-        if (!sourceItem) {
-          sourceItem = document.createElement('source');
-          sourceItem.id = 'native-source-element';
-          video.appendChild(sourceItem);
-        }
-        sourceItem.src = url;
-        sourceItem.type = 'video/mp4'; // Bypasses extension checking rules natively
-      } else {
-        video.src = url;
-      }
-      
+      video.src = url;
       video.load();
       video.play()
         .then(() => {
-          showNotification(`🎬 Archive Feed: ${title}`);
+          showNotification(`🎬 Playing Archive File: ${title}`);
         })
         .catch(e => {
-          console.warn("Playback engine skip context:", e);
+          console.warn("Direct file playback failed, trying next node:", e);
           const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
           playMovie(nextIdx);
         });
@@ -638,9 +545,7 @@
     
     if (autoSkipGeoBlocked && playlist[index].geoBlocked) {
       const nextIndex = findNextPlayableChannel((index + 1) % playlist.length, false);
-      if (nextIndex !== index) {
-        index = nextIndex;
-      }
+      if (nextIndex !== index) { index = nextIndex; }
     }
     
     currentIndex = index;
@@ -648,7 +553,7 @@
     
     const cleanedTitle = cleanTitle(item.title);
     channelNameSpan.textContent = cleanedTitle;
-    channelMetaSpan.textContent = `${item.group || 'Archive Log'} • Broadcast Recorded`;
+    channelMetaSpan.textContent = `${item.group || 'Archive File'} • Broadcast Log`;
     
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
@@ -675,27 +580,17 @@
     const channel = pendingGeoChannel;
     pendingGeoChannel = null;
     loadStream(channel.url, false, cleanTitle(channel.title), channel.index);
-    currentIndex = channel.index;
-    channelNameSpan.textContent = cleanTitle(channel.title);
-    document.querySelectorAll('.channel-item').forEach((el, i) => {
-      if (i === currentIndex) el.classList.add('active');
-      else el.classList.remove('active');
-    });
-    if (channelSelect) channelSelect.value = currentIndex;
   }
   
-  function handleDontShowAgain() {
+  dontShowAgainCheckbox.addEventListener('change', () => {
     autoSkipGeoBlocked = dontShowAgainCheckbox.checked;
     localStorage.setItem('autoSkipGeoBlocked', autoSkipGeoBlocked);
     if (autoSkipGeoBlocked && isModalActive) {
       vpnModal.classList.remove('active');
       isModalActive = false;
-      const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
-      playMovie(nextIndex);
+      playMovie(findNextPlayableChannel((currentIndex + 1) % playlist.length, false));
     }
-  }
-  
-  dontShowAgainCheckbox.addEventListener('change', handleDontShowAgain);
+  });
   
   function renderSidebar() {
     channelListEl.innerHTML = '';
@@ -707,8 +602,8 @@
       div.innerHTML = `
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
-          <div class="channel-title">${escapeHtml(displayTitle)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
-          <div class="channel-group">${ch.group || 'Archive'}</div>
+          <div class="channel-title">${escapeHtml(displayTitle)}</div>
+          <div class="channel-group">${ch.group || 'Archive Archive'}</div>
         </div>
       `;
       div.onclick = () => { playMovie(idx); closeSidebar(); };
@@ -716,138 +611,106 @@
       
       const opt = document.createElement('option');
       opt.value = idx;
-      opt.textContent = `${displayTitle} ${ch.geoBlocked ? '🔒' : '🌎'}`;
+      opt.textContent = displayTitle;
       if (idx === currentIndex) opt.selected = true;
       channelSelect.appendChild(opt);
     });
   }
   
   function escapeHtml(str) {
-    return str.replace(/[&<>]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      return m;
-    });
+    return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
   }
   
   function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
   
   videoStage.addEventListener('click', () => {
     video.muted = !video.muted;
-    showNotification(video.muted ? "🔇 Volume Muted" : "🔊 Audio Transmitting");
+    showNotification(video.muted ? "🔇 Sound Muted" : "🔊 Audio Channel Connected");
   });
   
   menuToggle.addEventListener('click', openSidebar);
   closeSidebarBtn.addEventListener('click', closeSidebar);
   modalSkipBtn.addEventListener('click', skipGeoChannel);
   modalRetryBtn.addEventListener('click', retryGeoChannel);
-  channelSelect.addEventListener('change', (e) => {
+  channelSelect.addEventListener('change', e => {
     playMovie(parseInt(e.target.value));
     closeSidebar();
   });
   
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', e => {
     if (isModalActive && !autoSkipGeoBlocked) return;
-    if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); }
-    if (e.key === 'ArrowLeft') { playMovie((currentIndex - 1 + playlist.length) % playlist.length); }
-    if (e.key === 'm' || e.key === 'M') { sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); }
+    if (e.key === 'ArrowRight') playMovie((currentIndex + 1) % playlist.length);
+    if (e.key === 'ArrowLeft') playMovie((currentIndex - 1 + playlist.length) % playlist.length);
+    if (e.key === 'm' || e.key === 'M') sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     if (e.key === 'f' || e.key === 'F') {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
       else document.exitFullscreen();
     }
-    if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
-  });
-  
-  document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-      closeSidebar();
-    }
   });
   
   video.addEventListener('ended', () => {
-    const nextIdx = autoSkipGeoBlocked ? findNextPlayableChannel((currentIndex + 1) % playlist.length, false) : (currentIndex + 1) % playlist.length;
-    playMovie(nextIdx);
+    playMovie((currentIndex + 1) % playlist.length);
   });
   
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
-    if (totalDur === 0) { 
-      const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
-      playMovie(startIdx); 
-      return; 
-    }
+    if (totalDur === 0) { playMovie(0); return; }
+    
     const now = new Date();
     const secondsSinceMidnight = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
     let pos = secondsSinceMidnight % totalDur;
     let acc = 0;
+    
     for (let i = 0; i < playlist.length; i++) {
       const dur = playlist[i].duration || 300;
       if (acc + dur > pos) {
-        let startIdx = i;
-        if (autoSkipGeoBlocked && playlist[startIdx].geoBlocked) {
-          startIdx = findNextPlayableChannel(startIdx, false);
-        }
-        playMovie(startIdx);
+        playMovie(i);
         const seekTo = pos - acc;
+        // Verify seeking rules match safety limits of old records
         if (seekTo > 0) {
           const checkReady = setInterval(() => {
             if (video.readyState >= 2 && video.duration) {
               video.currentTime = Math.min(seekTo, video.duration - 1);
               clearInterval(checkReady);
             }
-          }, 100);
+          }, 150);
+          setTimeout(() => clearInterval(checkReady), 5000); // Fail-safe fallback timeout
         }
         return;
       }
       acc += dur;
     }
-    const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
-    playMovie(startIdx);
+    playMovie(0);
   }
 
-  // ==================== RE-ATTACHED COUPLING NETWORK ====================
-  localforage.config({
-      name: 'AJN_Video_Archive',
-      storeName: 'playlists'
-  });
-
+  localforage.config({ name: 'AJN_Video_Archive', storeName: 'playlists' });
   const PLAYLIST_URL = 'https://raw.githubusercontent.com/banamine/video-player-archive/main/playlists/AJNHourly_ACTIVE.json';
 
   async function fetchAndCachePlaylist() {
     try {
       const response = await fetch(PLAYLIST_URL);
-      if (!response.ok) throw new Error("Server response offline");
+      if (!response.ok) throw new Error("Network path offline");
       const freshData = await response.json();
       await localforage.setItem('active_playlist', freshData);
-      console.log("Playlist cached successfully.");
       return freshData;
     } catch (error) {
-      console.warn("Fetch dropped. Restoring IndexedDB payload...", error);
       const cachedData = await localforage.getItem('active_playlist');
       if (cachedData) {
-        showNotification("📴 Operating in Offline Mode", true);
+        showNotification("📴 Operating on Saved Local Cache", true);
         return cachedData;
-      } else {
-        showNotification("❌ Storage buffer initialization error", true);
-        return null;
       }
+      return null;
     }
   }
 
-  // Unified system initializer
   async function initPlayer() {
     dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-    
-    // Attempt archive sync
     const dynamicPlaylist = await fetchAndCachePlaylist();
     if (dynamicPlaylist && Array.isArray(dynamicPlaylist) && dynamicPlaylist.length > 0) {
-      playlist = dynamicPlaylist; // Successfully replaces the fallback live channels array with files
+      playlist = dynamicPlaylist;
     }
-    
     renderSidebar();
     initLinearSync();
     setInterval(updateClock, 1000);
