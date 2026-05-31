@@ -1,0 +1,18 @@
+
+#### **Create SETUP.md (in docs/)**
+
+```markdown
+# Setup & Installation Guide
+
+## For Users
+1. Go to https://yourusername.github.io/video-player-archive/
+2. Drag the orange button to the drop zone
+3. Select videos from the playlist
+4. Videos cache automatically
+
+## For Developers
+
+### Clone Repository
+```bash
+git clone https://github.com/yourusername/video-player-archive.git
+cd video-player-archive

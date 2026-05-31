@@ -1,0 +1,49 @@
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+
+<script>
+  // Initialize the Offline Cache Database
+  localforage.config({
+      name: 'AJN_Video_Archive',
+      storeName: 'playlists'
+  });
+
+  const PLAYLIST_URL = 'https://raw.githubusercontent.com/banamine/video-player-archive/main/playlists/AJNHourly_ACTIVE.json';
+
+  async function fetchAndCachePlaylist() {
+    try {
+      // 1. Try to fetch fresh data
+      const response = await fetch(PLAYLIST_URL);
+      if (!response.ok) throw new Error("Network response was not ok");
+      
+      const freshData = await response.json();
+      
+      // 2. Save to local IndexedDB (acting as your offline cache)
+      await localforage.setItem('active_playlist', freshData);
+      console.log("Playlist cached successfully.");
+      
+      return freshData;
+    } catch (error) {
+      console.warn("Fetch failed, falling back to offline cache...", error);
+      // 3. Fallback to cache if offline
+      const cachedData = await localforage.getItem('active_playlist');
+      if (cachedData) {
+        showNotification("📴 Operating in Offline Mode", true);
+        return cachedData;
+      } else {
+        showNotification("❌ No internet and no offline cache found.", true);
+        return null;
+      }
+    }
+  }
+
+  // Example implementation inside your existing setup
+  async function initPlayer() {
+    const dynamicPlaylist = await fetchAndCachePlaylist();
+    if (dynamicPlaylist) {
+      // Replace your hardcoded `playlist` array with dynamicPlaylist
+      window.playlist = dynamicPlaylist; 
+      renderSidebar();
+      initLinearSync();
+    }
+  }
+</script>

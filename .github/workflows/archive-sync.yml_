@@ -1,0 +1,42 @@
+name: RSS Playlist Archiver
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour at minute 0
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  build-and-archive:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push commits back to the repo
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (For RSS Parsing)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install rss-parser
+        # Note: You will need a simple package.json in your repo for this, or install globally.
+
+      - name: Run Playlist Generator Script
+        run: node scripts/generate_playlists.js
+        # This script (which you need to create) will:
+        # 1. Fetch the RSS feed.
+        # 2. Generate playlists/AJNHourly_ACTIVE.m3u8 and .json.
+        # 3. Rename yesterday's ACTIVE to AJNHourly_YYYY-MM-DD.m3u8.
+        # 4. Delete files older than your retention limit (e.g., keeping only 300 files).
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action Archiver"
+          git add playlists/
+          
+          # Only commit if there are changes to avoid failing the workflow
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update: Sync latest RSS playlists" && git push)

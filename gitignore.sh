@@ -1,0 +1,2 @@
+# Create file
+touch .gitignore

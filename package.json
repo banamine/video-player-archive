@@ -1,0 +1,14 @@
+{
+  "name": "video-player-archive",
+  "version": "1.0.0",
+  "description": "AJN Video Player and RSS Archiver",
+  "main": "index.html",
+  "scripts": {
+    "sync": "node scripts/generate_playlists.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.2",
+    "sqlite3": "^6.0.1",
+    "xml2js": "^0.6.2"
+  }
+}

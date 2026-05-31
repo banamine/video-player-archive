@@ -1,0 +1,25 @@
+video-player-archive/
+├── README.md                    # Project documentation
+├── index.html                   # Main player page (complete HTML from earlier)
+├── style.css                    # (Optional: external CSS if needed)
+├── script.js                    # (Optional: external JS if needed)
+├── .gitignore                   # Files to ignore
+├── LICENSE                      # MIT License
+├── videos/                      # Video files (M4V format)
+│   ├── Alex-Mon-Hr1.m4v
+│   ├── Alex-Mon-Hr2.m4v
+│   ├── Alex-Tue-Hr1.m4v
+│   ├── War-Room-Mon-Hr1.m4v
+│   └── ... (all your videos)
+├── playlists/                   # Playlist files
+│   ├── all_videos.json
+│   ├── monday.m3u
+│   ├── tuesday.m3u
+│   └── wednesday.m3u
+├── docs/                        # Documentation
+│   ├── SETUP.md                 # How to use the player
+│   ├── CONTRIBUTE.md            # Contributing guidelines
+│   └── FAQ.md                   # Frequently asked questions
+└── assets/                      # Images, icons (optional)
+    ├── logo.png
+    └── screenshot.png
