@@ -38,7 +38,7 @@
       height: 100%;
       background: #000;
       z-index: 1;
-      cursor: pointer; /* Hint that stage is clickable */
+      cursor: pointer;
     }
     
     #video-player {
@@ -122,9 +122,7 @@
       transform: scale(1.05);
     }
     
-    .menu-toggle:hover svg path {
-      stroke: #000;
-    }
+    .menu-toggle:hover svg path { stroke: #000; }
     
     .sidebar {
       position: fixed;
@@ -144,9 +142,7 @@
       box-shadow: 8px 0 40px rgba(0,0,0,0.5);
     }
     
-    .sidebar.open {
-      transform: translateX(0);
-    }
+    .sidebar.open { transform: translateX(0); }
     
     .sidebar-header {
       padding: 24px 20px;
@@ -224,9 +220,7 @@
       opacity: 0.7;
     }
     
-    .channel-info {
-      flex: 1;
-    }
+    .channel-info { flex: 1; }
     
     .channel-title {
       font-weight: 600;
@@ -237,10 +231,7 @@
       text-overflow: ellipsis;
     }
     
-    .channel-group {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
+    .channel-group { font-size: 11px; color: var(--text-dim); }
     
     .geo-badge {
       font-size: 10px;
@@ -293,10 +284,7 @@
       transition: all 0.3s ease;
     }
     
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
     
     .vpn-modal {
       background: linear-gradient(145deg, #0f0f1a, #07070e);
@@ -331,12 +319,7 @@
       color: transparent;
     }
     
-    .vpn-modal p {
-      color: #ccc;
-      line-height: 1.5;
-      margin: 16px 0;
-      font-size: 14px;
-    }
+    .vpn-modal p { color: #ccc; line-height: 1.5; margin: 16px 0; font-size: 14px; }
     
     .vpn-warning-text {
       background: rgba(255,51,102,0.15);
@@ -359,27 +342,11 @@
       cursor: pointer;
     }
     
-    .checkbox-row input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
+    .checkbox-row input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
     
-    .checkbox-row label {
-      color: #ddd;
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-      text-align: left;
-    }
+    .checkbox-row label { color: #ddd; font-size: 13px; cursor: pointer; flex: 1; text-align: left; }
     
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
+    .modal-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     
     .btn-primary {
       background: linear-gradient(135deg, #00f3ff, #0099cc);
@@ -402,9 +369,7 @@
       transition: 0.2s;
     }
     
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
     
     .notification-ticker {
       position: fixed;
@@ -461,8 +426,8 @@
 
 <div class="top-bar">
   <div class="now-playing-badge">
-    <div><span class="channel-name" id="channel-name">Loading...</span></div>
-    <div class="meta" id="channel-meta">Live Stream</div>
+    <div><span class="channel-name" id="channel-name">Loading Live Archives...</span></div>
+    <div class="meta" id="channel-meta">Connecting...</div>
   </div>
   <div class="clock" id="clock">--:--:--</div>
 </div>
@@ -475,7 +440,7 @@
 
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <h2>📡 CHANNEL GUIDE</h2>
+    <h2>📡 ARCHIVE GUIDE</h2>
     <button class="close-sidebar" id="closeSidebar">✕</button>
   </div>
   <div class="channel-list" id="channelList"></div>
@@ -488,19 +453,19 @@
   <div class="vpn-modal">
     <div class="vpn-icon">⚠️🔒</div>
     <h3>VPN REQUIRED</h3>
-    <p><strong>Geo-restricted content</strong> — This channel is only available within Canada.</p>
+    <p><strong>Geo-restricted content</strong> — This channel requires an appropriate viewing zone.</p>
     <div class="vpn-warning-text">
-      🇨🇦 <strong>Stalin's New Canada Censorship Notice:</strong><br>
-      The propaganda machine demands compliance. This stream is <strong>not for you</strong> unless you're inside the Canadian broadcast region.<br><br>
-      🔐 <em>Enable a VPN with Canadian exit node to bypass the digital iron curtain.</em>
+      🇨🇦 <strong>Broadcast Region Notification:</strong><br>
+      This feed content is locked by upstream distribution nodes unless mapped within target viewing lines.<br><br>
+      🔐 <em>Enable a VPN with matching regional route parameters to release network limits.</em>
     </div>
     <div class="checkbox-row" id="dontShowAgainRow">
       <input type="checkbox" id="dontShowAgainCheckbox">
       <label for="dontShowAgainCheckbox">🚫 Don't show this again — automatically skip blocked channels</label>
     </div>
     <div class="modal-buttons">
-      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip to Next Channel</button>
-      <button class="btn-primary" id="modalRetryBtn">🔄 Retry (VPN Enabled)</button>
+      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip to Next Entry</button>
+      <button class="btn-primary" id="modalRetryBtn">🔄 Retry Stream Node</button>
     </div>
   </div>
 </div>
@@ -508,22 +473,13 @@
 <div id="notification" class="notification-ticker" style="display: none;"></div>
 <div class="keyboard-hint">← → arrows • M menu • F fullscreen • Click video stage to unmute</div>
 
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // ==================== PLAYLIST ====================
-  const playlist = [
-    { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC News Explore", url: "https://cbcrclive-tor-fast-internal.akamaized.net/hls/live/2095857/prod-gem-cbc-news-explore/hls/master.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC News Network", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Toronto", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Vancouver", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042768/CBCRCLINEAR_TOR_14/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CityNews Edmonton", url: "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/Video-2Mbps.m3u8", group: "News", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News National", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News BC", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf063257170000724590c/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Calgary", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf23dcfb48300077f8348/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Toronto", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc00b3b821cf00070f82c3/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Winnipeg", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc0120880c890007191016/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" }
+  // FIX 1: Transformed from "const" to "let" so the async fetch handler can swap it out with archives.
+  let playlist = [
+    { title: "CBC Toronto Fallback", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "Live Fallback", geoBlocked: true, duration: 300 },
+    { title: "Global News Fallback", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Live Fallback", geoBlocked: false, duration: 300 }
   ];
 
   // DOM elements
@@ -578,36 +534,31 @@
     return startIndex;
   }
   
-  // FIX 2: Helper regex pattern handler to cleanly strip residual web-scraped tags out of headings
+  // Clean titles filter to catch any residual text issues automatically
   function cleanTitle(str) {
-    if (!str) return 'Untitled Stream';
+    if (!str) return 'Untitled Broadcast';
     return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
   
-  // ==================== ENHANCED FALLBACK ENGINE ====================
   function loadStream(url, isGeoBlocked, title, targetIndex) {
     destroyHls();
     video.pause();
     
-    // Remove any dynamically created source elements to prevent conflicts
     const oldSource = document.getElementById('native-source-element');
     if (oldSource && oldSource.parentNode === video) {
       video.removeChild(oldSource);
     }
     
-    // FIX 3: Fully remove the 'src' attribute. Setting video.src = '' keeps an explicit empty 
-    // source property value on the tag, blocking any nested <source> tracks from evaluating.
+    // Completely scrub top-level src to enable internal dynamic sources
     video.removeAttribute('src');
     
-    // Auto-skip mode for geo-blocked content
     if (autoSkipGeoBlocked && isGeoBlocked) {
-      showNotification(`🔒 Skipped ${title} (VPN required)`, true);
+      showNotification(`🔒 Skipped ${title} (VPN Required)`, true);
       const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
       setTimeout(() => playMovie(nextIndex), 100);
       return false;
     }
     
-    // Geo-blocked modal trigger (only if auto-skip is off)
     if (isGeoBlocked && !autoSkipGeoBlocked) {
       pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
       vpnModal.classList.add('active');
@@ -615,15 +566,15 @@
       return false;
     }
     
-    // ==================== HLS STREAM HANDLING ====================
+    // ==================== HLS LIVE MANIFEST PIPELINE ====================
     if (url.includes('.m3u8')) {
       if (Hls.isSupported()) {
         hlsInstance = new Hls({ enableWorker: true, debug: false });
         hlsInstance.loadSource(url);
         hlsInstance.attachMedia(video);
         hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(e => console.log("Autoplay blocked:", e));
-          showNotification(`▶️ Now playing: ${title}`);
+          video.play().catch(e => console.log("Autoplay caught:", e));
+          showNotification(`▶️ Playing: ${title}`);
         });
         hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
           if (data.fatal && data.response && data.response.code === 403) {
@@ -636,33 +587,23 @@
               playMovie(nextIdx);
             }
           } else if (data.fatal) {
-            showNotification(`⚠️ HLS Error: ${title}`, true);
             const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
             setTimeout(() => playMovie(nextIdx), 2000);
           }
         });
         return true;
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Safari native HLS
         video.src = url;
         video.play().catch(e => console.log(e));
-        showNotification(`▶️ Now playing: ${title} (Safari HLS)`);
         return true;
-      } else {
-        showNotification(`❌ HLS not supported in this browser`, true);
-        const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-        setTimeout(() => playMovie(nextIdx), 2000);
-        return false;
       }
     } 
     
-    // ==================== FALLBACK ENGINE: MP4, M4V, MP3, etc. ====================
+    // ==================== ARCHIVE CONTROLLER: M4V, MP4, MP3 ====================
     else {
-      // Detect Apple M4V containers — Chrome/Firefox need explicit type override
-      const isAppleContainer = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
+      const isVideoFile = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
       
-      if (isAppleContainer) {
-        // Dynamic source element creation bypasses native extension rejection rules
+      if (isVideoFile) {
         let sourceItem = document.getElementById('native-source-element');
         if (!sourceItem) {
           sourceItem = document.createElement('source');
@@ -670,20 +611,18 @@
           video.appendChild(sourceItem);
         }
         sourceItem.src = url;
-        sourceItem.type = 'video/mp4'; // Forces browser to use MP4 engine regardless of extension
+        sourceItem.type = 'video/mp4'; // Bypasses extension checking rules natively
       } else {
-        // Standard non-video assets (MP3 audio logs, etc.)
         video.src = url;
       }
       
       video.load();
       video.play()
         .then(() => {
-          showNotification(`🎬 Playing Archive: ${title}`);
+          showNotification(`🎬 Archive Feed: ${title}`);
         })
         .catch(e => {
-          console.warn(`${url} — Playback failed, auto-skipping...`, e);
-          showNotification(`⚠️ Cannot play ${title} (unsupported format)`, true);
+          console.warn("Playback engine skip context:", e);
           const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
           playMovie(nextIdx);
         });
@@ -700,7 +639,6 @@
     if (autoSkipGeoBlocked && playlist[index].geoBlocked) {
       const nextIndex = findNextPlayableChannel((index + 1) % playlist.length, false);
       if (nextIndex !== index) {
-        showNotification(`🔒 Skipping geo-blocked channel`, true);
         index = nextIndex;
       }
     }
@@ -708,10 +646,9 @@
     currentIndex = index;
     const item = playlist[currentIndex];
     
-    // FIX 2 (Continued): Clean title headings prior to output rendering
     const cleanedTitle = cleanTitle(item.title);
     channelNameSpan.textContent = cleanedTitle;
-    channelMetaSpan.textContent = `${item.group} • Live Stream`;
+    channelMetaSpan.textContent = `${item.group || 'Archive Log'} • Broadcast Recorded`;
     
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
@@ -729,7 +666,6 @@
     pendingGeoChannel = null;
     const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
     playMovie(nextIndex);
-    showNotification("⏭️ Skipped geo-restricted channel", true);
   }
   
   function retryGeoChannel() {
@@ -738,7 +674,6 @@
     isModalActive = false;
     const channel = pendingGeoChannel;
     pendingGeoChannel = null;
-    showNotification("🔄 Retrying with VPN...", false);
     loadStream(channel.url, false, cleanTitle(channel.title), channel.index);
     currentIndex = channel.index;
     channelNameSpan.textContent = cleanTitle(channel.title);
@@ -757,7 +692,6 @@
       isModalActive = false;
       const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
       playMovie(nextIndex);
-      showNotification("🔒 Auto-skip enabled — blocked channels will be skipped automatically", false);
     }
   }
   
@@ -767,7 +701,6 @@
     channelListEl.innerHTML = '';
     channelSelect.innerHTML = '';
     playlist.forEach((ch, idx) => {
-      // FIX 2 (Continued): Run regex titles clean pass here too
       const displayTitle = cleanTitle(ch.title);
       const div = document.createElement('div');
       div.className = `channel-item ${idx === currentIndex ? 'active' : ''}`;
@@ -775,7 +708,7 @@
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
           <div class="channel-title">${escapeHtml(displayTitle)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
-          <div class="channel-group">${ch.group}</div>
+          <div class="channel-group">${ch.group || 'Archive'}</div>
         </div>
       `;
       div.onclick = () => { playMovie(idx); closeSidebar(); };
@@ -803,10 +736,9 @@
     document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
   
-  // FIX 1 (Continued): Interactive Click Stage listener overrides browser audio policy blocks effortlessly
   videoStage.addEventListener('click', () => {
     video.muted = !video.muted;
-    showNotification(video.muted ? "🔇 Stream Audio Muted" : "🔊 Stream Audio Unmuted", false);
+    showNotification(video.muted ? "🔇 Volume Muted" : "🔊 Audio Transmitting");
   });
   
   menuToggle.addEventListener('click', openSidebar);
@@ -820,8 +752,8 @@
   
   document.addEventListener('keydown', (e) => {
     if (isModalActive && !autoSkipGeoBlocked) return;
-    if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); showNotification("⏩ Next channel", false); }
-    if (e.key === 'ArrowLeft') { playMovie((currentIndex - 1 + playlist.length) % playlist.length); showNotification("⏪ Previous channel", false); }
+    if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); }
+    if (e.key === 'ArrowLeft') { playMovie((currentIndex - 1 + playlist.length) % playlist.length); }
     if (e.key === 'm' || e.key === 'M') { sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); }
     if (e.key === 'f' || e.key === 'F') {
       if (!document.fullscreenElement) document.documentElement.requestFullscreen();
@@ -876,16 +808,53 @@
     const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
     playMovie(startIdx);
   }
-  
-  dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-  renderSidebar();
-  initLinearSync();
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  if (!Hls.isSupported() && !video.canPlayType('application/vnd.apple.mpegurl')) {
-    showNotification("HLS not supported in this browser", true);
+
+  // ==================== RE-ATTACHED COUPLING NETWORK ====================
+  localforage.config({
+      name: 'AJN_Video_Archive',
+      storeName: 'playlists'
+  });
+
+  const PLAYLIST_URL = 'https://raw.githubusercontent.com/banamine/video-player-archive/main/playlists/AJNHourly_ACTIVE.json';
+
+  async function fetchAndCachePlaylist() {
+    try {
+      const response = await fetch(PLAYLIST_URL);
+      if (!response.ok) throw new Error("Server response offline");
+      const freshData = await response.json();
+      await localforage.setItem('active_playlist', freshData);
+      console.log("Playlist cached successfully.");
+      return freshData;
+    } catch (error) {
+      console.warn("Fetch dropped. Restoring IndexedDB payload...", error);
+      const cachedData = await localforage.getItem('active_playlist');
+      if (cachedData) {
+        showNotification("📴 Operating in Offline Mode", true);
+        return cachedData;
+      } else {
+        showNotification("❌ Storage buffer initialization error", true);
+        return null;
+      }
+    }
   }
+
+  // Unified system initializer
+  async function initPlayer() {
+    dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
+    
+    // Attempt archive sync
+    const dynamicPlaylist = await fetchAndCachePlaylist();
+    if (dynamicPlaylist && Array.isArray(dynamicPlaylist) && dynamicPlaylist.length > 0) {
+      playlist = dynamicPlaylist; // Successfully replaces the fallback live channels array with files
+    }
+    
+    renderSidebar();
+    initLinearSync();
+    setInterval(updateClock, 1000);
+    updateClock();
+  }
+
+  initPlayer();
 </script>
 </body>
 </html>
