@@ -2,943 +2,354 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>TV Player • Global Stream Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AJN Hourly Video Player</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    :root {
-      --primary: #00f3ff;
-      --primary-glow: rgba(0, 243, 255, 0.4);
-      --accent: #39ff14;
-      --bg-dark: #0a0a0f;
-      --bg-panel: rgba(8, 8, 14, 0.95);
-      --border-dim: rgba(255, 255, 255, 0.08);
-      --text-dim: #a0a0c0;
-      --transition-smooth: cubic-bezier(0.2, 0.9, 0.4, 1.1);
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #000;
+      background: #050508;
       color: #fff;
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-family: system-ui, -apple-system, sans-serif;
       height: 100vh;
-      width: 100vw;
       overflow: hidden;
-      position: fixed;
+      display: flex;
     }
-    
-    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
-    
-    .video-stage {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
+
+    /* Main Video Theater Stage */
+    .main-stage {
+      flex: 1;
       height: 100%;
       background: #000;
-      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
-    
-    #video-player {
+    video {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      background: #000;
     }
-    
-    .top-bar {
-      position: fixed;
+    .video-header {
+      position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 20;
-      background: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
+      background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%);
+      padding: 20px;
+      z-index: 10;
       pointer-events: none;
     }
-    
-    .top-bar > * { pointer-events: auto; }
-    
-    .now-playing-badge {
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(12px);
-      border-left: 3px solid var(--primary);
-      padding: 8px 18px;
-      border-radius: 0 12px 12px 0;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    .now-playing-badge .channel-name {
-      color: var(--primary);
+    .video-title {
+      font-size: 18px;
       font-weight: 700;
-      font-size: 16px;
+      color: #ff3333;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
     }
-    
-    .now-playing-badge .meta {
-      font-size: 11px;
-      color: #aaa;
-      margin-top: 2px;
-    }
-    
-    .clock {
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-      padding: 6px 14px;
-      border-radius: 40px;
-      font-family: 'Inter', monospace;
-      font-weight: 500;
-      font-size: 15px;
-      letter-spacing: 1px;
-    }
-    
-    .menu-toggle {
-      position: fixed;
-      bottom: 24px;
-      left: 24px;
-      z-index: 50;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--primary);
-      border-radius: 48px;
-      width: 56px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      pointer-events: auto;
-    }
-    
-    .menu-toggle:hover {
-      background: var(--primary);
-      transform: scale(1.05);
-    }
-    
-    .menu-toggle:hover svg path {
-      stroke: #000;
-    }
-    
+
+    /* Sidebar Archive Guide */
     .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
       width: 380px;
-      max-width: 85vw;
       height: 100%;
-      background: var(--bg-panel);
-      backdrop-filter: blur(20px);
-      border-right: 1px solid var(--border-dim);
-      z-index: 100;
-      transform: translateX(-100%);
-      transition: transform 0.35s var(--transition-smooth);
+      background: #0f0f15;
+      border-left: 1px solid #222230;
       display: flex;
       flex-direction: column;
-      box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+      z-index: 20;
     }
-    
-    .sidebar.open {
-      transform: translateX(0);
-    }
-    
     .sidebar-header {
-      padding: 24px 20px;
-      border-bottom: 1px solid var(--border-dim);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid #222230;
     }
-    
     .sidebar-header h2 {
-      font-size: 20px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #fff, var(--primary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      letter-spacing: -0.3px;
-    }
-    
-    .close-sidebar {
-      background: rgba(255,255,255,0.1);
-      border: none;
+      font-size: 18px;
       color: #fff;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      transition: 0.2s;
+      margin-bottom: 5px;
     }
-    
-    .close-sidebar:hover {
-      background: rgba(255,255,255,0.2);
-      transform: rotate(90deg);
-    }
-    
-    .channel-list {
+    .archive-list {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 12px;
+      padding: 10px;
     }
-    
-    .channel-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 16px;
+    .archive-item {
+      padding: 12px 14px;
+      background: #151522;
+      border-radius: 6px;
       margin-bottom: 8px;
-      background: rgba(255,255,255,0.03);
-      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-    
-    .channel-item:hover {
-      background: rgba(0, 243, 255, 0.08);
-      border-color: rgba(0, 243, 255, 0.3);
-      transform: translateX(4px);
-    }
-    
-    .channel-item.active {
-      background: linear-gradient(135deg, rgba(0,243,255,0.12), rgba(57,255,20,0.06));
-      border-left: 3px solid var(--primary);
-      border-color: var(--primary);
-    }
-    
-    .channel-number {
-      width: 40px;
       font-size: 13px;
-      font-weight: 600;
-      color: var(--primary);
-      opacity: 0.7;
+      font-family: monospace;
+      word-break: break-all;
+      border-left: 3px solid transparent;
+      transition: all 0.15s ease;
     }
-    
-    .channel-info {
-      flex: 1;
+    .archive-item:hover {
+      background: #1c1c30;
     }
-    
-    .channel-title {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 4px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .archive-item.active {
+      background: #251818;
+      border-left-color: #ff3333;
+      color: #ff5555;
     }
-    
-    .channel-group {
-      font-size: 11px;
-      color: var(--text-dim);
+    .sidebar-footer {
+      padding: 15px;
+      border-top: 1px solid #222230;
+      background: #0b0b10;
     }
-    
-    .geo-badge {
-      font-size: 10px;
-      background: rgba(255, 51, 102, 0.2);
-      border: 1px solid rgba(255, 51, 102, 0.5);
-      border-radius: 20px;
-      padding: 2px 8px;
-      margin-left: 8px;
-      color: #ff6680;
-    }
-    
-    .quick-selector {
-      padding: 16px;
-      border-top: 1px solid var(--border-dim);
-      background: rgba(0,0,0,0.3);
-    }
-    
-    .quick-selector select {
-      width: 100%;
-      padding: 12px 16px;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid var(--primary);
-      border-radius: 40px;
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-    }
-    
-    .quick-selector select:focus {
-      outline: none;
-      box-shadow: 0 0 12px var(--primary-glow);
-    }
-    
-    .modal-overlay {
+
+    /* Setup/Importer Screen Overlay */
+    .setup-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 200;
+      background: #0a0a0f;
+      z-index: 100;
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
+      padding: 20px;
     }
-    
-    .modal-overlay.active {
-      opacity: 1;
-      visibility: visible;
+    .setup-card {
+      background: #12121a;
+      border: 1px solid #2b2b3a;
+      border-radius: 12px;
+      max-width: 500px;
+      width: 100%;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    
-    .vpn-modal {
-      background: linear-gradient(145deg, #0f0f1a, #07070e);
-      border: 1px solid rgba(255, 51, 102, 0.5);
-      border-radius: 32px;
-      max-width: 440px;
-      width: 90%;
-      padding: 28px 24px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-      animation: modalPop 0.35s cubic-bezier(0.34, 1.2, 0.64, 1);
+    .setup-card h3 { color: #ff3333; margin-bottom: 10px; font-size: 22px; }
+    .setup-card p { color: #8a8a9e; font-size: 14px; margin-bottom: 20px; line-height: 1.4; }
+    input[type="text"], textarea {
+      width: 100%;
+      background: #07070a;
+      border: 1px solid #333344;
+      color: #fff;
+      padding: 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      margin-bottom: 15px;
+      font-size: 13px;
     }
-    
-    @keyframes modalPop {
-      from { transform: scale(0.92); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    
-    .vpn-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-      filter: drop-shadow(0 0 12px #ff3366);
-    }
-    
-    .vpn-modal h3 {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, #ff6680, #ff3366);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    
-    .vpn-modal p {
-      color: #ccc;
-      line-height: 1.5;
-      margin: 16px 0;
+    textarea { height: 140px; resize: none; }
+    .btn {
+      width: 100%;
+      background: #ff3333;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
       font-size: 14px;
     }
-    
-    .vpn-warning-text {
-      background: rgba(255,51,102,0.15);
-      padding: 12px;
-      border-radius: 16px;
-      font-size: 13px;
-      border-left: 3px solid #ff3366;
-      text-align: left;
-      margin: 20px 0;
-    }
-    
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin: 16px 0;
-      padding: 8px 12px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      cursor: pointer;
-    }
-    
-    .checkbox-row input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
-    
-    .checkbox-row label {
-      color: #ddd;
-      font-size: 13px;
-      cursor: pointer;
-      flex: 1;
-      text-align: left;
-    }
-    
-    .modal-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, #00f3ff, #0099cc);
-      border: none;
-      padding: 12px 24px;
-      border-radius: 40px;
-      font-weight: 700;
-      color: #000;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .btn-secondary {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid #444;
-      padding: 12px 24px;
-      border-radius: 40px;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.2);
-    }
-    
-    .notification-ticker {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 25;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(12px);
-      border-radius: 40px;
-      padding: 8px 20px;
-      font-size: 12px;
-      color: var(--accent);
-      border-left: 2px solid var(--accent);
-      pointer-events: none;
-      animation: fadeSlideUp 0.4s ease;
-    }
-    
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .keyboard-hint {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      font-size: 10px;
-      background: rgba(0,0,0,0.4);
-      padding: 4px 12px;
-      border-radius: 20px;
-      color: #888;
-      font-family: monospace;
-      pointer-events: none;
-      z-index: 15;
-    }
-    
+    .btn:hover { background: #ff5555; }
+    .btn-secondary { background: #2b2b3a; margin-top: 8px; }
+    .btn-secondary:hover { background: #3b3b4a; }
+
+    /* Layout Responsiveness */
     @media (max-width: 768px) {
-      .sidebar { width: 100%; max-width: 100%; transform: translateX(-100%); }
-      .keyboard-hint { display: none; }
-      .now-playing-badge { max-width: 60%; font-size: 11px; padding: 6px 12px; }
-      .menu-toggle { bottom: 20px; left: 20px; width: 48px; height: 48px; }
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: 40%; }
     }
-    
-    .channel-list::-webkit-scrollbar { width: 4px; }
-    .channel-list::-webkit-scrollbar-track { background: #1a1a2a; }
-    .channel-list::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
   </style>
 </head>
 <body>
 
-<div class="video-stage">
-  <video id="video-player" autoplay playsinline preload="metadata"></video>
-</div>
-
-<div class="top-bar">
-  <div class="now-playing-badge">
-    <div><span class="channel-name" id="channel-name">Loading...</span></div>
-    <div class="meta" id="channel-meta">Live Stream</div>
-  </div>
-  <div class="clock" id="clock">--:--:--</div>
-</div>
-
-<button class="menu-toggle" id="menuToggle" aria-label="Channel Menu">
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#00f3ff" stroke-width="1.8" stroke-linecap="round">
-    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
-  </svg>
-</button>
-
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <h2>📡 CHANNEL GUIDE</h2>
-    <button class="close-sidebar" id="closeSidebar">✕</button>
-  </div>
-  <div class="channel-list" id="channelList"></div>
-  <div class="quick-selector">
-    <select id="channelSelect"></select>
-  </div>
-</aside>
-
-<div class="modal-overlay" id="vpnModal">
-  <div class="vpn-modal">
-    <div class="vpn-icon">⚠️🔒</div>
-    <h3>VPN REQUIRED</h3>
-    <p><strong>Geo-restricted content</strong> — This channel is only available within Canada.</p>
-    <div class="vpn-warning-text">
-      🇨🇦 <strong>Broadcast Region Notice:</strong><br>
-      This stream requires compliance with local broadcast limitations.<br><br>
-      🔐 <em>Enable a VPN with a matching regional exit node to bypass restrictions.</em>
+  <!-- Video Window -->
+  <div class="main-stage">
+    <div class="video-header">
+      <div class="video-title" id="currentVideoTitle">No Track Loaded</div>
     </div>
-    <div class="checkbox-row" id="dontShowAgainRow">
-      <input type="checkbox" id="dontShowAgainCheckbox">
-      <label for="dontShowAgainCheckbox">🚫 Don't show this again — automatically skip blocked channels</label>
+    <video id="mainPlayer" controls autoplay name="media"></video>
+  </div>
+
+  <!-- Selection Panel -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>AJN Hourly Log</h2>
+      <div style="font-size: 11px; color: #666;" id="trackCounter">0 clips parsed</div>
     </div>
-    <div class="modal-buttons">
-      <button class="btn-secondary" id="modalSkipBtn">⏭️ Skip to Next Channel</button>
-      <button class="btn-primary" id="modalRetryBtn">🔄 Retry (VPN Enabled)</button>
+    <div class="archive-list" id="archiveList"></div>
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary" style="padding: 8px; font-size: 12px;" id="changeSourceBtn">🔄 Load / Update Source File</button>
     </div>
   </div>
-</div>
 
-<div id="notification" class="notification-ticker" style="display: none;"></div>
-<div class="keyboard-hint">← → arrows • M menu • F fullscreen</div>
+  <!-- Link Scraper Engine Interface -->
+  <div class="setup-screen" id="setupScreen">
+    <div class="setup-card">
+      <h3>AJN Archive Link Scraper</h3>
+      <p>Enter the archive HTML source file to extract the video timeline links directly into your browser.</p>
+      
+      <label style="font-size: 11px; font-weight: bold; color: #888;">TARGET INDEX URL:</label>
+      <input type="text" id="sourceUrl" value="https://rss.alexjones.media/AJNHourlyVideo.html">
+      <button class="btn" id="fetchDirectBtn">⚡ Attempt Direct Online Scan</button>
+      
+      <div style="text-align: center; margin: 15px 0; color: #444; font-size: 11px; font-weight: bold;">— OR IF BROWSER BLOCKS ACCESS (CORS) —</div>
+      
+      <label style="font-size: 11px; font-weight: bold; color: #888;">PASTE RAW HTML PAGE SOURCE CODE:</label>
+      <textarea id="rawHtmlInput" placeholder="1. Open the URL in a separate browser window&#10;2. Right-click page -> select 'View Page Source'&#10;3. Press Ctrl+A to select all, Copy it, and paste it here..."></textarea>
+      <button class="btn" id="parseRawBtn" style="background: #00bcd4;">🛠️ Extract .m4v Archives</button>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // ==================== PLAYLIST ====================
-  // This array handles thousands of entries seamlessly without crashing.
-  const playlist = [
-    { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC News Explore", url: "https://cbcrclive-tor-fast-internal.akamaized.net/hls/live/2095857/prod-gem-cbc-news-explore/hls/master.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC News Network", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Toronto", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CBC Vancouver", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042768/CBCRCLINEAR_TOR_14/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
-    { title: "CityNews Edmonton", url: "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/Video-2Mbps.m3u8", group: "News", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News National", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News BC", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf063257170000724590c/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Calgary", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf23dcfb48300077f8348/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Toronto", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc00b3b821cf00070f82c3/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
-    { title: "Global News Winnipeg", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc0120880c890007191016/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" }
-  ];
+  let videoPlaylist = [];
+  let currentTrackIndex = 0;
+  let activeElementPointer = null;
 
-  // DOM elements
-  const video = document.getElementById('video-player');
-  const channelListEl = document.getElementById('channelList');
-  const channelSelect = document.getElementById('channelSelect');
-  const channelNameSpan = document.getElementById('channel-name');
-  const channelMetaSpan = document.getElementById('channel-meta');
-  const sidebar = document.getElementById('sidebar');
-  const menuToggle = document.getElementById('menuToggle');
-  const closeSidebarBtn = document.getElementById('closeSidebar');
-  const vpnModal = document.getElementById('vpnModal');
-  const modalSkipBtn = document.getElementById('modalSkipBtn');
-  const modalRetryBtn = document.getElementById('modalRetryBtn');
-  const notificationDiv = document.getElementById('notification');
-  const dontShowAgainCheckbox = document.getElementById('dontShowAgainCheckbox');
-  
-  let currentIndex = 0;
-  let hlsInstance = null;
-  let pendingGeoChannel = null;
-  let isModalActive = false;
-  let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
-  let previousActiveEl = null;
-  
-  // Progressive Batch Rendering Engine Configuration
-  const itemsPerBatch = 300;
-  let currentlyRenderedCount = 0;
-  
-  function showNotification(msg, isError = false) {
-    notificationDiv.textContent = msg;
-    notificationDiv.style.display = 'block';
-    notificationDiv.style.color = isError ? '#ff6680' : '#39ff14';
-    notificationDiv.style.borderLeftColor = isError ? '#ff3366' : '#39ff14';
-    setTimeout(() => { notificationDiv.style.display = 'none'; }, 2800);
-  }
-  
-  function closeSidebar() { sidebar.classList.remove('open'); }
-  function openSidebar() { sidebar.classList.add('open'); }
-  
-  function destroyHls() {
-    if (hlsInstance) {
-      hlsInstance.destroy();
-      hlsInstance = null;
-    }
-  }
-  
-  function findNextPlayableChannel(startIndex, respectGeoBlock = true) {
-    let index = startIndex;
-    for (let i = 0; i < playlist.length; i++) {
-      const candidate = playlist[index];
-      if (!respectGeoBlock || !candidate.geoBlocked) {
-        return index;
-      }
-      index = (index + 1) % playlist.length;
-    }
-    return startIndex;
-  }
-  
-  // ==================== ENHANCED FALLBACK ENGINE ====================
-  function loadStream(url, isGeoBlocked, title, targetIndex) {
-    destroyHls();
-    video.pause();
+  const player = document.getElementById('mainPlayer');
+  const setupScreen = document.getElementById('setupScreen');
+  const archiveListContainer = document.getElementById('archiveList');
+  const videoTitleHeader = document.getElementById('currentVideoTitle');
+  const trackCounterLabel = document.getElementById('trackCounter');
+
+  // Extracts target video links out of strings/HTML structures
+  function processHtmlPayload(htmlContent) {
+    const matchedItems = [];
     
-    const oldSource = document.getElementById('native-source-element');
-    if (oldSource && oldSource.parentNode === video) {
-      video.removeChild(oldSource);
-    }
+    // Pattern Matcher: Look for valid standard HTML href anchor nodes
+    const virtualDoc = new DOMParser().parseFromString(htmlContent, 'text/html');
+    const anchors = virtualDoc.querySelectorAll('a');
     
-    video.src = '';
-    
-    if (autoSkipGeoBlocked && isGeoBlocked) {
-      showNotification(`🔒 Skipped ${title} (VPN required)`, true);
-      const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-      setTimeout(() => playMovie(nextIndex), 100);
-      return false;
-    }
-    
-    if (isGeoBlocked && !autoSkipGeoBlocked) {
-      pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
-      vpnModal.classList.add('active');
-      isModalActive = true;
-      return false;
-    }
-    
-    // ==================== HLS STREAM HANDLING ====================
-    if (url.includes('.m3u8')) {
-      if (Hls.isSupported()) {
-        hlsInstance = new Hls({ enableWorker: true, debug: false });
-        hlsInstance.loadSource(url);
-        hlsInstance.attachMedia(video);
-        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch(e => console.log("Autoplay blocked:", e));
-          showNotification(`▶️ Now playing: ${title}`);
-        });
-        hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
-          if (data.fatal && data.response && data.response.code === 403) {
-            if (!autoSkipGeoBlocked && !isModalActive) {
-              pendingGeoChannel = { url, title, isGeoBlocked: true, index: targetIndex };
-              vpnModal.classList.add('active');
-              isModalActive = true;
-            } else if (autoSkipGeoBlocked) {
-              const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-              playMovie(nextIdx);
-            }
-          } else if (data.fatal) {
-            showNotification(`⚠️ HLS Error: ${title}`, true);
-            const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-            setTimeout(() => playMovie(nextIdx), 2000);
-          }
-        });
-        return true;
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        video.src = url;
-        video.play().catch(e => console.log(e));
-        showNotification(`▶️ Now playing: ${title} (Safari HLS)`);
-        return true;
-      } else {
-        showNotification(`❌ HLS not supported in this browser`, true);
-        const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-        setTimeout(() => playMovie(nextIdx), 2000);
-        return false;
-      }
-    } 
-    
-    // ==================== FALLBACK ENGINE: MP4, M4V, MP3, etc. ====================
-    else {
-      const isAppleContainer = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
-      
-      if (isAppleContainer) {
-        let sourceItem = document.getElementById('native-source-element');
-        if (!sourceItem) {
-          sourceItem = document.createElement('source');
-          sourceItem.id = 'native-source-element';
-          video.appendChild(sourceItem);
+    anchors.forEach(anchor => {
+      let urlValue = anchor.getAttribute('href');
+      if (urlValue && (urlValue.toLowerCase().includes('.m4v') || urlValue.toLowerCase().includes('.mp4'))) {
+        // Build out absolute address schema if relative references exist
+        if (!urlValue.startsWith('http')) {
+          urlValue = 'https://rss.alexjones.media/' + urlValue.replace(/^\//, '');
         }
-        sourceItem.src = url;
-        sourceItem.type = 'video/mp4';
-      } else {
-        video.src = url;
-      }
-      
-      video.load();
-      video.play()
-        .then(() => {
-          showNotification(`🎬 Playing Archive: ${title}`);
-        })
-        .catch(e => {
-          console.warn(`${url} — Playback failed, auto-skipping...`, e);
-          showNotification(`⚠️ Cannot play ${title} (unsupported format)`, true);
-          const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-          playMovie(nextIdx);
+        matchedItems.push({
+          name: anchor.textContent.trim() || urlValue.substring(urlValue.lastIndexOf('/') + 1),
+          streamUrl: urlValue
         });
-      return true;
-    }
-  }
-  
-  function playMovie(index) {
-    if (isModalActive && !autoSkipGeoBlocked) return;
-    
-    if (index < 0) index = 0;
-    if (index >= playlist.length) index = 0;
-    
-    if (autoSkipGeoBlocked && playlist[index].geoBlocked) {
-      const nextIndex = findNextPlayableChannel((index + 1) % playlist.length, false);
-      if (nextIndex !== index) {
-        showNotification(`🔒 Skipping geo-blocked channel`, true);
-        index = nextIndex;
+      }
+    });
+
+    // Regex Fallback Pattern Scanner (for unformatted flat pages or partial trees)
+    if (matchedItems.length === 0) {
+      const stringRegex = /(https?:\/\/[^\s"'><]+?\.(?:m4v|mp4))/gi;
+      let regularExpressionResult;
+      while ((regularExpressionResult = stringRegex.exec(htmlContent)) !== null) {
+        const discoveredUrl = regularExpressionResult[1];
+        matchedItems.push({
+          name: discoveredUrl.substring(discoveredUrl.lastIndexOf('/') + 1),
+          streamUrl: discoveredUrl
+        });
       }
     }
-    
-    currentIndex = index;
-    const item = playlist[currentIndex];
-    
-    channelNameSpan.textContent = item.title;
-    channelMetaSpan.textContent = `${item.group} • Live Stream`;
-    
-    // Safeguarded batch progression logic
-    let lastCount = -1;
-    while (currentIndex >= currentlyRenderedCount && currentlyRenderedCount < playlist.length) {
-      if (currentlyRenderedCount === lastCount) break;
-      lastCount = currentlyRenderedCount;
-      renderSidebar(false);
+
+    if (matchedItems.length === 0) {
+      alert("No valid .m4v or .mp4 media targets detected inside submitted payload.");
+      return false;
     }
-    
-    // O(1) direct structural manipulation loop - instantaneous pointer execution
-    if (previousActiveEl) {
-      previousActiveEl.classList.remove('active');
-    }
-    const currentActiveEl = channelListEl.querySelector(`[data-index="${currentIndex}"]`);
-    if (currentActiveEl) {
-      currentActiveEl.classList.add('active');
-      previousActiveEl = currentActiveEl;
-      if (sidebar.classList.contains('open')) {
-        currentActiveEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
-    }
-    
-    if (channelSelect) channelSelect.value = currentIndex;
-    
-    loadStream(item.url, item.geoBlocked, item.title, currentIndex);
-  }
-  
-  function skipGeoChannel() {
-    if (!isModalActive) return;
-    vpnModal.classList.remove('active');
-    isModalActive = false;
-    pendingGeoChannel = null;
-    const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
-    playMovie(nextIndex);
-    showNotification("⏭️ Skipped geo-restricted channel", true);
-  }
-  
-  function retryGeoChannel() {
-    if (!isModalActive || !pendingGeoChannel) return;
-    vpnModal.classList.remove('active');
-    isModalActive = false;
-    const channel = pendingGeoChannel;
-    pendingGeoChannel = null;
-    showNotification("🔄 Retrying with VPN...", false);
-    loadStream(channel.url, false, channel.title, channel.index);
-    currentIndex = channel.index;
-    channelNameSpan.textContent = channel.title;
-    
-    let lastCount = -1;
-    while (currentIndex >= currentlyRenderedCount && currentlyRenderedCount < playlist.length) {
-      if (currentlyRenderedCount === lastCount) break;
-      lastCount = currentlyRenderedCount;
-      renderSidebar(false);
-    }
-    
-    if (previousActiveEl) previousActiveEl.classList.remove('active');
-    const currentActiveEl = channelListEl.querySelector(`[data-index="${currentIndex}"]`);
-    if (currentActiveEl) {
-      currentActiveEl.classList.add('active');
-      previousActiveEl = currentActiveEl;
-    }
-    if (channelSelect) channelSelect.value = currentIndex;
-  }
-  
-  function handleDontShowAgain() {
-    autoSkipGeoBlocked = dontShowAgainCheckbox.checked;
-    localStorage.setItem('autoSkipGeoBlocked', autoSkipGeoBlocked);
-    if (autoSkipGeoBlocked && isModalActive) {
-      vpnModal.classList.remove('active');
-      isModalActive = false;
-      const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
-      playMovie(nextIndex);
-      showNotification("🔒 Auto-skip enabled — blocked channels will be skipped automatically", false);
-    }
-  }
-  
-  dontShowAgainCheckbox.addEventListener('change', handleDontShowAgain);
-  
-  // High-Performance Option Pre-indexing
-  function initDropdown() {
-    channelSelect.innerHTML = '';
-    const fragmentSelect = document.createDocumentFragment();
-    for (let idx = 0; idx < playlist.length; idx++) {
-      const ch = playlist[idx];
-      const opt = document.createElement('option');
-      opt.value = idx;
-      opt.textContent = `#${idx+1} - ${ch.title} ${ch.geoBlocked ? '🔒' : '🌎'}`;
-      if (idx === currentIndex) opt.selected = true;
-      fragmentSelect.appendChild(opt);
-    }
-    channelSelect.appendChild(fragmentSelect);
+
+    videoPlaylist = matchedItems;
+    localStorage.setItem('ajn_saved_playlist', JSON.stringify(videoPlaylist));
+    generateUiList();
+    setupScreen.style.display = 'none';
+    executeTrack(0);
+    return true;
   }
 
-  // High-Performance Rich UI Batch Side-loading Engine (300 at a time)
-  function renderSidebar(reset = true) {
-    if (reset) {
-      channelListEl.innerHTML = '';
-      currentlyRenderedCount = 0;
-      previousActiveEl = null;
-    }
+  // Layout Generator Loop
+  function generateUiList() {
+    archiveListContainer.innerHTML = '';
+    trackCounterLabel.textContent = `${videoPlaylist.length} video streams ready`;
     
-    let targetLoadCount = currentlyRenderedCount + itemsPerBatch;
-    if (currentIndex >= targetLoadCount) {
-      targetLoadCount = Math.floor(currentIndex / itemsPerBatch) * itemsPerBatch + itemsPerBatch;
-    }
-    targetLoadCount = Math.min(targetLoadCount, playlist.length);
-    
-    if (currentlyRenderedCount >= playlist.length && !reset) return;
-    
-    const fragmentList = document.createDocumentFragment();
-    
-    for (let idx = currentlyRenderedCount; idx < targetLoadCount; idx++) {
-      const ch = playlist[idx];
+    const operationalFragment = document.createDocumentFragment();
+
+    videoPlaylist.forEach((track, index) => {
+      const itemRow = document.createElement('div');
+      itemRow.className = 'archive-item';
+      itemRow.setAttribute('data-id', index);
+      itemRow.textContent = track.name;
       
-      const div = document.createElement('div');
-      div.className = `channel-item ${idx === currentIndex ? 'active' : ''}`;
-      div.setAttribute('data-index', idx);
-      div.innerHTML = `
-        <div class="channel-number">#${idx+1}</div>
-        <div class="channel-info">
-          <div class="channel-title">${escapeHtml(ch.title)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
-          <div class="channel-group">${ch.group}</div>
-        </div>
-      `;
-      div.onclick = () => { playMovie(idx); closeSidebar(); };
+      itemRow.onclick = () => {
+        executeTrack(index);
+      };
       
-      if (idx === currentIndex) {
-        previousActiveEl = div;
-      }
-      
-      fragmentList.appendChild(div);
-    }
-    
-    channelListEl.appendChild(fragmentList);
-    currentlyRenderedCount = targetLoadCount;
+      operationalFragment.appendChild(itemRow);
+    });
+
+    archiveListContainer.appendChild(operationalFragment);
   }
-  
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"]/g, function(m) {
-      if (m === '&') return '&amp;';
-      if (m === '<') return '&lt;';
-      if (m === '>') return '&gt;';
-      if (m === '"') return '&quot;';
-      return m;
+
+  // Audio/Video Pipeline Interface Execution
+  function executeTrack(index) {
+    if (index < 0 || index >= videoPlaylist.length) return;
+    currentTrackIndex = index;
+    const selection = videoPlaylist[currentTrackIndex];
+
+    videoTitleHeader.textContent = selection.name;
+
+    // Fast O(1) state swapping logic
+    if (activeElementPointer) {
+      activeElementPointer.classList.remove('active');
+    }
+    const currentTargetNode = archiveListContainer.querySelector(`[data-id="${currentTrackIndex}"]`);
+    if (currentTargetNode) {
+      currentTargetNode.classList.add('active');
+      activeElementPointer = currentTargetNode;
+      currentTargetNode.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+
+    // Direct Browser Progressive Native Injection Pipeline
+    player.pause();
+    player.src = selection.streamUrl;
+    player.load();
+    player.play().catch(error => {
+      console.warn("Direct stream playback initialized or halted:", error);
     });
   }
-  
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
-  }
-  
-  menuToggle.addEventListener('click', openSidebar);
-  closeSidebarBtn.addEventListener('click', closeSidebar);
-  modalSkipBtn.addEventListener('click', skipGeoChannel);
-  modalRetryBtn.addEventListener('click', retryGeoChannel);
-  channelSelect.addEventListener('change', (e) => {
-    playMovie(parseInt(e.target.value));
-    closeSidebar();
-  });
-  
-  // Continuous Infinite Scroll Listener
-  channelListEl.addEventListener('scroll', () => {
-    if (currentlyRenderedCount < playlist.length) {
-      if (channelListEl.scrollTop + channelListEl.clientHeight >= channelListEl.scrollHeight - 150) {
-        renderSidebar(false);
-      }
+
+  // Interactive Trigger Hooks
+  document.getElementById('fetchDirectBtn').onclick = () => {
+    const endpoint = document.getElementById('sourceUrl').value;
+    fetch(endpoint)
+      .then(response => response.text())
+      .then(textData => {
+        processHtmlPayload(textData);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("The server blocked direct script access (CORS Security Policy). Please open the file in a new tab and paste its Page Source below instead.");
+      });
+  };
+
+  document.getElementById('parseRawBtn').onclick = () => {
+    const rawContentString = document.getElementById('rawHtmlInput').value;
+    if (!rawContentString.trim()) {
+      return alert("The raw data workspace is empty.");
     }
+    processHtmlPayload(rawContentString);
+  };
+
+  document.getElementById('changeSourceBtn').onclick = () => {
+    setupScreen.style.display = 'flex';
+  };
+
+  // Skip forward on video completion hook
+  player.onended = () => {
+    executeTrack((currentTrackIndex + 1) % videoPlaylist.length);
+  };
+
+  // Keyboard Navigation Bindings
+  document.addEventListener('keydown', (event) => {
+    if (setupScreen.style.display !== 'none') return;
+    if (event.key === 'ArrowRight') executeTrack((currentTrackIndex + 1) % videoPlaylist.length);
+    if (event.key === 'ArrowLeft') executeTrack((currentTrackIndex - 1 + videoPlaylist.length) % videoPlaylist.length);
   });
-  
-  document.addEventListener('keydown', (e) => {
-    if (isModalActive && !autoSkipGeoBlocked) return;
-    if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); showNotification("⏩ Next channel", false); }
-    if (e.key === 'ArrowLeft') { playMovie((currentIndex - 1 + playlist.length) % playlist.length); showNotification("⏪ Previous channel", false); }
-    if (e.key === 'm' || e.key === 'M') { sidebar.classList.contains('open') ? closeSidebar() : openSidebar(); }
-    if (e.key === 'f' || e.key === 'F') {
-      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-      else document.exitFullscreen();
-    }
-    if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
-  });
-  
-  document.addEventListener('click', (e) => {
-    if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-      closeSidebar();
-    }
-  });
-  
-  video.addEventListener('ended', () => {
-    const nextIdx = autoSkipGeoBlocked ? findNextPlayableChannel((currentIndex + 1) % playlist.length, false) : (currentIndex + 1) % playlist.length;
-    playMovie(nextIdx);
-  });
-  
-  // High-Performance Time Epoch Loop Architecture
-  function initLinearSync() {
-    const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
-    if (totalDur === 0) { 
-      const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
-      playMovie(startIdx); 
-      return; 
-    }
-    const now = new Date();
-    const totalSecondsEpoch = Math.floor(now.getTime() / 1000);
-    let pos = totalSecondsEpoch % totalDur;
-    let acc = 0;
-    for (let i = 0; i < playlist.length; i++) {
-      const dur = playlist[i].duration || 300;
-      if (acc + dur > pos) {
-        let startIdx = i;
-        if (autoSkipGeoBlocked && playlist[startIdx].geoBlocked) {
-          startIdx = findNextPlayableChannel(startIdx, false);
-        }
-        playMovie(startIdx);
-        const seekTo = pos - acc;
-        if (seekTo > 0) {
-          const checkReady = setInterval(() => {
-            if (video.readyState >= 2 && video.duration) {
-              video.currentTime = Math.min(seekTo, video.duration - 1);
-              clearInterval(checkReady);
-            }
-          }, 100);
-        }
-        return;
-      }
-      acc += dur;
-    }
-    const startIdx = autoSkipGeoBlocked ? findNextPlayableChannel(0, false) : 0;
-    playMovie(startIdx);
-  }
-  
-  dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-  initDropdown();
-  renderSidebar(true);
-  initLinearSync();
-  setInterval(updateClock, 1000);
-  updateClock();
-  
-  if (!Hls.isSupported() && !video.canPlayType('application/vnd.apple.mpegurl')) {
-    showNotification("HLS not supported in this browser", true);
+
+  // Local Storage Initialization Validation Check
+  const localCache = localStorage.getItem('ajn_saved_playlist');
+  if (localCache) {
+    videoPlaylist = JSON.parse(localCache);
+    generateUiList();
+    setupScreen.style.display = 'none';
+    executeTrack(0);
   }
 </script>
 </body>
