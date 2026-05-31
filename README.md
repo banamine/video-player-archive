@@ -21,8 +21,23 @@ Offline-capable video player with SQLite caching. Load videos from RSS feeds or 
 - **Use Cache**: Switch to cached videos if remote is slow
 - **Offline**: All previously watched videos work without internet
 
-## Installation (for development)
-```bash
-git clone https://github.com/yourusername/video-player-archive.git
-cd video-player-archive
-# No build step needed - open index.html in browser
+The script will:
+
+Auto-install requests, beautifulsoup4, flask, flask-cors
+
+Create all directories and files
+
+Generate the initial playlist JSON
+
+Start a local server at http://localhost:8080
+
+Open your browser automatically
+
+2. GitHub Actions Automation
+The script creates .github/workflows/update_playlist.yml that:
+
+Runs every 6 hours automatically
+
+Can be triggered manually from GitHub Actions tab
+
+Fetches the latest RSS and commits updated JSON
