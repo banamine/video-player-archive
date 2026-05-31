@@ -429,7 +429,7 @@
   let isModalActive = false;
   let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
 
-  // INTEGRATION OPTION 1: Track the current active media thread promise
+  // FIX: Option 1 Bulletproof Utility Wrapper state variable
   let activePlayPromise = null;
   
   function showNotification(msg, isError = false) {
@@ -467,14 +467,14 @@
     return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
   }
 
-  // INTEGRATION OPTION 1: Control Wrapper to safely sequentialize background mutations
+  // FIX: Option 1 Bulletproof wrapper coordination function
   function safePauseAndExecute(executionCallback) {
     if (activePlayPromise !== null && typeof activePlayPromise.then === 'function') {
       activePlayPromise.then(() => {
         video.pause();
         executionCallback();
       }).catch(() => {
-        // Even if the previous playback request was blocked or aborted, clear state cleanly
+        // Clear state cleanly even if previous play was blocked/aborted
         video.pause();
         executionCallback();
       });
@@ -484,7 +484,7 @@
     }
   }
 
-  // INTEGRATION OPTION 1: Catch and track the promise returned by .play()
+  // FIX: Option 1 Tracking execution block for handling hardware promises safely
   function triggerTrackedPlayback(title) {
     activePlayPromise = video.play();
     
@@ -493,16 +493,16 @@
         showNotification(`🎬 Playing Archive: ${title}`);
       }).catch(error => {
         if (error.name === 'AbortError') {
-          console.log("Playback pipeline cleared safely by an intentional track change.");
+          console.log("Playback request cleaned safely by an intentional track change execution.");
         } else {
-          console.warn("Autoplay block detected. HTML5 native controls active for bypass:", error);
+          console.warn("Autoplay block caught. Interactive fallback ready via stage tap:", error);
         }
       });
     }
   }
   
   function loadStream(url, isGeoBlocked, title, targetIndex) {
-    // Process stream configuration change safely behind the wrapper
+    // Encapsulate structural mutations behind safe promise wrapper limits
     safePauseAndExecute(() => {
       destroyHls();
       video.removeAttribute('src');
@@ -638,7 +638,7 @@
   }
   
   videoStage.addEventListener('click', (e) => {
-    if (e.target === video) return; // Ignore if user clicks native controls elements
+    if (e.target === video) return; // Allow interaction directly on native player control elements
     if (video.paused) {
       triggerTrackedPlayback(cleanTitle(playlist[currentIndex].title));
     } else {
@@ -688,7 +688,7 @@
         
         if (seekTo > 0) {
           const checkReady = setInterval(() => {
-            // Guard: completely protect against operations while duration parses as NaN
+            // FIX: Guard logic parsing loop ensuring seek parameters do not map to NaN
             if (video.readyState >= 2 && !isNaN(video.duration) && video.duration > 0) {
               const safeSeekPoint = Math.min(seekTo, video.duration - 1);
               if (safeSeekPoint > 0 && isFinite(safeSeekPoint)) {
@@ -697,7 +697,7 @@
               clearInterval(checkReady);
             }
           }, 250);
-          setTimeout(() => clearInterval(checkReady), 8000);
+          setTimeout(() => clearInterval(checkReady), 8000); // Fail-safe fallback limit
         }
         return;
       }
