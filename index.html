@@ -38,6 +38,7 @@
       height: 100%;
       background: #000;
       z-index: 1;
+      cursor: pointer; /* Hint that stage is clickable */
     }
     
     #video-player {
@@ -454,8 +455,8 @@
 </head>
 <body>
 
-<div class="video-stage">
-  <video id="video-player" autoplay playsinline preload="metadata"></video>
+<div class="video-stage" id="videoStage">
+  <video id="video-player" autoplay playsinline preload="metadata" muted></video>
 </div>
 
 <div class="top-bar">
@@ -505,29 +506,29 @@
 </div>
 
 <div id="notification" class="notification-ticker" style="display: none;"></div>
-<div class="keyboard-hint">← → arrows • M menu • F fullscreen</div>
+<div class="keyboard-hint">← → arrows • M menu • F fullscreen • Click video stage to unmute</div>
 
-<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  // ==================== PLAYLIST (CHANGED TO let FOR CACHE MANIPULATION) ====================
-  let playlist = [
-    { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CBC News Explore", url: "https://cbcrclive-tor-fast-internal.akamaized.net/hls/live/2095857/prod-gem-cbc-news-explore/hls/master.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CBC News Network", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CBC Toronto", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CBC Vancouver", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042768/CBCRCLINEAR_TOR_14/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300 },
-    { title: "CityNews Edmonton", url: "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/Video-2Mbps.m3u8", group: "News", geoBlocked: false, duration: 300 },
-    { title: "Global News National", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Global", geoBlocked: false, duration: 300 },
-    { title: "Global News BC", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf063257170000724590c/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300 },
-    { title: "Global News Calgary", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf23dcfb48300077f8348/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300 },
-    { title: "Global News Toronto", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc00b3b821cf00070f82c3/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300 },
-    { title: "Global News Winnipeg", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc0120880c890007191016/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300 }
+  // ==================== PLAYLIST ====================
+  const playlist = [
+    { title: "CBC Calgary", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042763/CBCRCLINEAR_TOR_9/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Edmonton", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042765/CBCRCLINEAR_TOR_11/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC News Explore", url: "https://cbcrclive-tor-fast-internal.akamaized.net/hls/live/2095857/prod-gem-cbc-news-explore/hls/master.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC News Network", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042769/geo_allow_ca/CBCRCLINEAR_TOR_15/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Toronto", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042760/CBCRCLINEAR_TOR_6/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CBC Vancouver", url: "https://cbcrclinear-tor.akamaized.net/hls/live/2042768/CBCRCLINEAR_TOR_14/master5.m3u8", group: "CBC", geoBlocked: true, duration: 300, type: "hls" },
+    { title: "CityNews Edmonton", url: "https://citynewsregional.akamaized.net/hls/live/1024053/Regional_Live_8/Video-2Mbps.m3u8", group: "News", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News National", url: "https://live.corusdigitaldev.com/groupd/live/49a91e7f-1023-430f-8d66-561055f3d0f7/live.isml/master.m3u8", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News BC", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf063257170000724590c/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Calgary", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cbf23dcfb48300077f8348/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Toronto", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc00b3b821cf00070f82c3/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" },
+    { title: "Global News Winnipeg", url: "https://cfd-v4-service-channel-stitcher-use1-1.prd.pluto.tv/stitch/hls/channel/62cc0120880c890007191016/master.m3u8?appName=web", group: "Global", geoBlocked: false, duration: 300, type: "hls" }
   ];
 
   // DOM elements
   const video = document.getElementById('video-player');
+  const videoStage = document.getElementById('videoStage');
   const channelListEl = document.getElementById('channelList');
   const channelSelect = document.getElementById('channelSelect');
   const channelNameSpan = document.getElementById('channel-name');
@@ -540,7 +541,6 @@
   const modalRetryBtn = document.getElementById('modalRetryBtn');
   const notificationDiv = document.getElementById('notification');
   const dontShowAgainCheckbox = document.getElementById('dontShowAgainCheckbox');
-  const dontShowAgainRow = document.getElementById('dontShowAgainRow');
   
   let currentIndex = 0;
   let hlsInstance = null;
@@ -548,7 +548,6 @@
   let isModalActive = false;
   let autoSkipGeoBlocked = localStorage.getItem('autoSkipGeoBlocked') === 'true';
   
-  // Helper: show notification
   function showNotification(msg, isError = false) {
     notificationDiv.textContent = msg;
     notificationDiv.style.display = 'block';
@@ -567,7 +566,6 @@
     }
   }
   
-  // Find next non-geo-blocked channel (or just next if auto-skip enabled)
   function findNextPlayableChannel(startIndex, respectGeoBlock = true) {
     let index = startIndex;
     for (let i = 0; i < playlist.length; i++) {
@@ -577,16 +575,31 @@
       }
       index = (index + 1) % playlist.length;
     }
-    return startIndex; // fallback
+    return startIndex;
   }
   
-  // Load stream with geo-block handling
+  // FIX 2: Helper regex pattern handler to cleanly strip residual web-scraped tags out of headings
+  function cleanTitle(str) {
+    if (!str) return 'Untitled Stream';
+    return str.replace(/<\/?[^>]+(>|$)/g, "").trim();
+  }
+  
+  // ==================== ENHANCED FALLBACK ENGINE ====================
   function loadStream(url, isGeoBlocked, title, targetIndex) {
     destroyHls();
     video.pause();
-    video.src = '';
     
-    // Auto-skip mode enabled
+    // Remove any dynamically created source elements to prevent conflicts
+    const oldSource = document.getElementById('native-source-element');
+    if (oldSource && oldSource.parentNode === video) {
+      video.removeChild(oldSource);
+    }
+    
+    // FIX 3: Fully remove the 'src' attribute. Setting video.src = '' keeps an explicit empty 
+    // source property value on the tag, blocking any nested <source> tracks from evaluating.
+    video.removeAttribute('src');
+    
+    // Auto-skip mode for geo-blocked content
     if (autoSkipGeoBlocked && isGeoBlocked) {
       showNotification(`🔒 Skipped ${title} (VPN required)`, true);
       const nextIndex = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
@@ -594,6 +607,7 @@
       return false;
     }
     
+    // Geo-blocked modal trigger (only if auto-skip is off)
     if (isGeoBlocked && !autoSkipGeoBlocked) {
       pendingGeoChannel = { url, title, isGeoBlocked, index: targetIndex };
       vpnModal.classList.add('active');
@@ -601,38 +615,80 @@
       return false;
     }
     
-    if (url.includes('.m3u8') && Hls.isSupported()) {
-      hlsInstance = new Hls({ enableWorker: true, debug: false });
-      hlsInstance.loadSource(url);
-      hlsInstance.attachMedia(video);
-      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-        video.play().catch(e => console.log("autoplay", e));
-        showNotification(`▶️ Now playing: ${title}`);
-      });
-      hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
-        if (data.fatal && data.response && data.response.code === 403) {
-          if (!autoSkipGeoBlocked && !isModalActive) {
-            pendingGeoChannel = { url, title, isGeoBlocked: true, index: targetIndex };
-            vpnModal.classList.add('active');
-            isModalActive = true;
-          } else if (autoSkipGeoBlocked) {
-            showNotification(`🔒 ${title} blocked — auto-skipping`, true);
+    // ==================== HLS STREAM HANDLING ====================
+    if (url.includes('.m3u8')) {
+      if (Hls.isSupported()) {
+        hlsInstance = new Hls({ enableWorker: true, debug: false });
+        hlsInstance.loadSource(url);
+        hlsInstance.attachMedia(video);
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+          video.play().catch(e => console.log("Autoplay blocked:", e));
+          showNotification(`▶️ Now playing: ${title}`);
+        });
+        hlsInstance.on(Hls.Events.ERROR, (evt, data) => {
+          if (data.fatal && data.response && data.response.code === 403) {
+            if (!autoSkipGeoBlocked && !isModalActive) {
+              pendingGeoChannel = { url, title, isGeoBlocked: true, index: targetIndex };
+              vpnModal.classList.add('active');
+              isModalActive = true;
+            } else if (autoSkipGeoBlocked) {
+              const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+              playMovie(nextIdx);
+            }
+          } else if (data.fatal) {
+            showNotification(`⚠️ HLS Error: ${title}`, true);
             const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-            playMovie(nextIdx);
+            setTimeout(() => playMovie(nextIdx), 2000);
           }
-        } else if (data.fatal) {
-          showNotification(`⚠️ Stream error: ${title}`, true);
-          const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
-          setTimeout(() => playMovie(nextIdx), 2000);
+        });
+        return true;
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Safari native HLS
+        video.src = url;
+        video.play().catch(e => console.log(e));
+        showNotification(`▶️ Now playing: ${title} (Safari HLS)`);
+        return true;
+      } else {
+        showNotification(`❌ HLS not supported in this browser`, true);
+        const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+        setTimeout(() => playMovie(nextIdx), 2000);
+        return false;
+      }
+    } 
+    
+    // ==================== FALLBACK ENGINE: MP4, M4V, MP3, etc. ====================
+    else {
+      // Detect Apple M4V containers — Chrome/Firefox need explicit type override
+      const isAppleContainer = url.includes('.m4v') || url.includes('.mp4') || url.includes('.MP4');
+      
+      if (isAppleContainer) {
+        // Dynamic source element creation bypasses native extension rejection rules
+        let sourceItem = document.getElementById('native-source-element');
+        if (!sourceItem) {
+          sourceItem = document.createElement('source');
+          sourceItem.id = 'native-source-element';
+          video.appendChild(sourceItem);
         }
-      });
-      return true;
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.play().catch(e => console.log(e));
+        sourceItem.src = url;
+        sourceItem.type = 'video/mp4'; // Forces browser to use MP4 engine regardless of extension
+      } else {
+        // Standard non-video assets (MP3 audio logs, etc.)
+        video.src = url;
+      }
+      
+      video.load();
+      video.play()
+        .then(() => {
+          showNotification(`🎬 Playing Archive: ${title}`);
+        })
+        .catch(e => {
+          console.warn(`${url} — Playback failed, auto-skipping...`, e);
+          showNotification(`⚠️ Cannot play ${title} (unsupported format)`, true);
+          const nextIdx = findNextPlayableChannel((targetIndex + 1) % playlist.length, false);
+          playMovie(nextIdx);
+        });
       return true;
     }
-    return false;
   }
   
   function playMovie(index) {
@@ -641,7 +697,6 @@
     if (index < 0) index = 0;
     if (index >= playlist.length) index = 0;
     
-    // If auto-skip is enabled, jump to next non-geo channel
     if (autoSkipGeoBlocked && playlist[index].geoBlocked) {
       const nextIndex = findNextPlayableChannel((index + 1) % playlist.length, false);
       if (nextIndex !== index) {
@@ -653,45 +708,40 @@
     currentIndex = index;
     const item = playlist[currentIndex];
     
-    channelNameSpan.textContent = item.title;
+    // FIX 2 (Continued): Clean title headings prior to output rendering
+    const cleanedTitle = cleanTitle(item.title);
+    channelNameSpan.textContent = cleanedTitle;
     channelMetaSpan.textContent = `${item.group} • Live Stream`;
     
-    // Update UI active states
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
       else el.classList.remove('active');
     });
     if (channelSelect) channelSelect.value = currentIndex;
     
-    loadStream(item.url, item.geoBlocked, item.title, currentIndex);
+    loadStream(item.url, item.geoBlocked, cleanedTitle, currentIndex);
   }
   
-  // Skip current geo channel (modal action)
   function skipGeoChannel() {
     if (!isModalActive) return;
     vpnModal.classList.remove('active');
     isModalActive = false;
     pendingGeoChannel = null;
-    
     const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
     playMovie(nextIndex);
     showNotification("⏭️ Skipped geo-restricted channel", true);
   }
   
-  // Retry current geo channel (assuming VPN now active)
   function retryGeoChannel() {
     if (!isModalActive || !pendingGeoChannel) return;
     vpnModal.classList.remove('active');
     isModalActive = false;
-    
-    // Attempt to play the same channel again
     const channel = pendingGeoChannel;
     pendingGeoChannel = null;
     showNotification("🔄 Retrying with VPN...", false);
-    loadStream(channel.url, false, channel.title, channel.index);
-    // Manually set UI to this channel
+    loadStream(channel.url, false, cleanTitle(channel.title), channel.index);
     currentIndex = channel.index;
-    channelNameSpan.textContent = channel.title;
+    channelNameSpan.textContent = cleanTitle(channel.title);
     document.querySelectorAll('.channel-item').forEach((el, i) => {
       if (i === currentIndex) el.classList.add('active');
       else el.classList.remove('active');
@@ -699,12 +749,10 @@
     if (channelSelect) channelSelect.value = currentIndex;
   }
   
-  // Handle "Don't show again" toggle
   function handleDontShowAgain() {
     autoSkipGeoBlocked = dontShowAgainCheckbox.checked;
     localStorage.setItem('autoSkipGeoBlocked', autoSkipGeoBlocked);
     if (autoSkipGeoBlocked && isModalActive) {
-      // If modal is active and user checks this, auto-close and skip
       vpnModal.classList.remove('active');
       isModalActive = false;
       const nextIndex = findNextPlayableChannel((currentIndex + 1) % playlist.length, false);
@@ -715,17 +763,18 @@
   
   dontShowAgainCheckbox.addEventListener('change', handleDontShowAgain);
   
-  // Render channel sidebar
   function renderSidebar() {
     channelListEl.innerHTML = '';
     channelSelect.innerHTML = '';
     playlist.forEach((ch, idx) => {
+      // FIX 2 (Continued): Run regex titles clean pass here too
+      const displayTitle = cleanTitle(ch.title);
       const div = document.createElement('div');
       div.className = `channel-item ${idx === currentIndex ? 'active' : ''}`;
       div.innerHTML = `
         <div class="channel-number">#${idx+1}</div>
         <div class="channel-info">
-          <div class="channel-title">${escapeHtml(ch.title)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
+          <div class="channel-title">${escapeHtml(displayTitle)} ${ch.geoBlocked ? '<span class="geo-badge">VPN</span>' : ''}</div>
           <div class="channel-group">${ch.group}</div>
         </div>
       `;
@@ -734,7 +783,7 @@
       
       const opt = document.createElement('option');
       opt.value = idx;
-      opt.textContent = `${ch.title} ${ch.geoBlocked ? '🔒' : '🌎'}`;
+      opt.textContent = `${displayTitle} ${ch.geoBlocked ? '🔒' : '🌎'}`;
       if (idx === currentIndex) opt.selected = true;
       channelSelect.appendChild(opt);
     });
@@ -754,7 +803,12 @@
     document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
   }
   
-  // Event listeners
+  // FIX 1 (Continued): Interactive Click Stage listener overrides browser audio policy blocks effortlessly
+  videoStage.addEventListener('click', () => {
+    video.muted = !video.muted;
+    showNotification(video.muted ? "🔇 Stream Audio Muted" : "🔊 Stream Audio Unmuted", false);
+  });
+  
   menuToggle.addEventListener('click', openSidebar);
   closeSidebarBtn.addEventListener('click', closeSidebar);
   modalSkipBtn.addEventListener('click', skipGeoChannel);
@@ -764,7 +818,6 @@
     closeSidebar();
   });
   
-  // Keyboard controls
   document.addEventListener('keydown', (e) => {
     if (isModalActive && !autoSkipGeoBlocked) return;
     if (e.key === 'ArrowRight') { playMovie((currentIndex + 1) % playlist.length); showNotification("⏩ Next channel", false); }
@@ -777,7 +830,6 @@
     if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
   });
   
-  // Click outside sidebar
   document.addEventListener('click', (e) => {
     if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
       closeSidebar();
@@ -789,7 +841,6 @@
     playMovie(nextIdx);
   });
   
-  // Initialize with auto-skip preference
   function initLinearSync() {
     const totalDur = playlist.reduce((sum, ch) => sum + (ch.duration || 300), 0);
     if (totalDur === 0) { 
@@ -826,63 +877,15 @@
     playMovie(startIdx);
   }
   
-  // ==================== DYNAMIC LIVE ARCHIVE CACHING (INTEGRATED) ====================
-  localforage.config({
-      name: 'AJN_Video_Archive',
-      storeName: 'playlists'
-  });
-
-  const PLAYLIST_URL = 'https://raw.githubusercontent.com/banamine/video-player-archive/main/playlists/AJNHourly_ACTIVE.json';
-
-  async function fetchAndCachePlaylist() {
-    try {
-      // 1. Try to fetch fresh live items
-      const response = await fetch(PLAYLIST_URL);
-      if (!response.ok) throw new Error("Network response was not ok");
-      
-      const freshData = await response.json();
-      
-      // 2. Cache it to local database
-      await localforage.setItem('active_playlist', freshData);
-      console.log("Playlist cached successfully.");
-      return freshData;
-    } catch (error) {
-      console.warn("Fetch failed, falling back to offline cache...", error);
-      // 3. Fallback to cache database if user is completely offline
-      const cachedData = await localforage.getItem('active_playlist');
-      if (cachedData) {
-        showNotification("📴 Operating in Offline Mode", true);
-        return cachedData;
-      } else {
-        showNotification("❌ No internet and no offline cache found.", true);
-        return null;
-      }
-    }
+  dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
+  renderSidebar();
+  initLinearSync();
+  setInterval(updateClock, 1000);
+  updateClock();
+  
+  if (!Hls.isSupported() && !video.canPlayType('application/vnd.apple.mpegurl')) {
+    showNotification("HLS not supported in this browser", true);
   }
-
-  // Orchestrated setup wrapper
-  async function initPlayer() {
-    dontShowAgainCheckbox.checked = autoSkipGeoBlocked;
-    
-    // Get live data if available
-    const dynamicPlaylist = await fetchAndCachePlaylist();
-    if (dynamicPlaylist && Array.isArray(dynamicPlaylist) && dynamicPlaylist.length > 0) {
-      playlist = dynamicPlaylist; // Safely reassigned because it uses "let"
-    }
-    
-    // Kickstart application rendering and timers
-    renderSidebar();
-    initLinearSync();
-    setInterval(updateClock, 1000);
-    updateClock();
-    
-    if (!Hls.isSupported() && !video.canPlayType('application/vnd.apple.mpegurl')) {
-      showNotification("HLS not supported in this browser", true);
-    }
-  }
-
-  // Execute on load
-  initPlayer();
 </script>
 </body>
 </html>
